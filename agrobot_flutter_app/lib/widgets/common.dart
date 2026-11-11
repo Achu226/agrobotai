@@ -112,12 +112,12 @@ class ReviewChip extends StatelessWidget {
       'rejected' => (Colors.red, 'Rejected'),
       _ => (Colors.orange, 'Pending review'),
     };
-    // Capped width: long translations (Tamil) wrap inside the chip instead of squeezing the scan title
+    // Capped width: a long translation is shortened with … instead of squeezing the scan title
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 104),
+      constraints: const BoxConstraints(maxWidth: 150),
       child: Chip(
         label: Text(context.tr(label),
-            maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: color.shade900)),
+            maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 11, color: color.shade900)),
         backgroundColor: color.shade50,
         side: BorderSide(color: color.shade200),
         visualDensity: VisualDensity.compact,
