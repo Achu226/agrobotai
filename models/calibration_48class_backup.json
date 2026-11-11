@@ -1,0 +1,27 @@
+{
+  "created": "2026-11-10T11:36:09",
+  "method": "temperature scaling fitted on the validation split; ECE reported on the test split; only the disease model was refit for the 48-class model (pest and image-quality kept from 2026-10-18T22:43:23)",
+  "disease": {
+    "temperature": 0.6386,
+    "test_accuracy_single_view": 99.11,
+    "ece_test_before": 0.0489,
+    "ece_test_after": 0.0036,
+    "n_val": 6924,
+    "n_test": 6399
+  },
+  "pest": {
+    "temperature": 0.529,
+    "test_accuracy_single_view": 99.69,
+    "ece_test_before": 0.0143,
+    "ece_test_after": 0.0044,
+    "n_val": 459,
+    "n_test": 321
+  },
+  "image_quality": {
+    "note": "Limits are set just below the 0.5th percentile of the training-domain validation+test images.",
+    "min_sharpness": 30.37,
+    "min_brightness": 27.06,
+    "max_brightness": 239.19,
+    "n_images": 5411
+  }
+}

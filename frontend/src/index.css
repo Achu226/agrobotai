@@ -1,0 +1,704 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Outfit:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+:root {
+  --font-heading: 'Space Grotesk', 'Outfit', sans-serif;
+  --font-brand: 'Cinzel', serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --color-emerald-dark: #022c22;
+  --color-emerald-medium: #047857;
+  --color-emerald-light: #10b981;
+  --color-emerald-accent: #34d399;
+  --color-emerald-bg: #f0fdf4;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f8fafc;
+  color: #0f172a;
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Header Styles */
+.agri-header-card {
+  background: linear-gradient(135deg, #022c22 0%, #064e3b 45%, #047857 85%, #059669 100%);
+  color: white;
+  border-radius: 24px;
+  padding: 2.4rem 2.8rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 20px 40px -12px rgba(4, 120, 87, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.agri-app-title {
+  font-family: var(--font-heading);
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(90deg, #ffffff 0%, #a7f3d0 60%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.agri-app-subtitle {
+  font-family: var(--font-sans);
+  font-size: 1.05rem;
+  opacity: 0.92;
+  max-width: 900px;
+  margin-bottom: 1.4rem;
+  font-weight: 400;
+}
+
+.badge-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.agri-badge {
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 0.45rem 1rem;
+  border-radius: 30px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #ecfdf5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* Control Cards */
+.card-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.6rem 1.8rem;
+  margin-bottom: 1.8rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+}
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Grid Layout */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.25rem;
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.25rem;
+}
+
+.grid-6 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  border: none;
+  padding: 0.95rem 1.8rem;
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 14px;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 20px -4px rgba(4, 120, 87, 0.4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px -4px rgba(4, 120, 87, 0.5);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 0.6rem 1.2rem;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-secondary:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Dropzone */
+.dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 2.2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #f8fafc;
+}
+
+.dropzone:hover, .dropzone.active {
+  border-color: #10b981;
+  background: #f0fdf4;
+}
+
+/* Health Gauge Card */
+.health-score-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #86efac;
+  border-radius: 24px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 10px 30px -5px rgba(22, 101, 52, 0.1);
+  margin-bottom: 2rem;
+}
+
+.health-score-num {
+  font-family: var(--font-heading);
+  font-size: 4.5rem;
+  font-weight: 800;
+  color: #064e3b;
+  line-height: 1;
+  margin: 0.4rem 0;
+}
+
+.health-badge {
+  display: inline-block;
+  font-size: 1.25rem;
+  font-weight: 800;
+  padding: 0.45rem 1.5rem;
+  border-radius: 30px;
+  margin-top: 0.5rem;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Diagnostic Module Card */
+.diag-card {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 1.4rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.diag-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+  border-color: #a7f3d0;
+}
+
+.diag-card.alert {
+  background: #fff5f5;
+  border-color: #fca5a5;
+}
+
+.diag-card.healthy {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.diag-card.nutrient {
+  background: #fdf4ff;
+  border-color: #f0abfc;
+}
+
+.diag-card.severity {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.diag-title {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #0f172a;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  font-size: 0.92rem;
+}
+
+.metric-label { color: #64748b; font-weight: 500; }
+.metric-val { color: #0f172a; font-weight: 700; }
+
+.progress-bar {
+  background: #e2e8f0;
+  height: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 0.4rem 0 0.8rem 0;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.5s ease;
+}
+
+/* Status Pills */
+.pill-ok { background: #dcfce7; color: #166534; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: 700; font-size: 0.8rem; }
+.pill-warn { background: #fef3c7; color: #92400e; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: 700; font-size: 0.8rem; }
+.pill-bad { background: #fee2e2; color: #991b1b; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: 700; font-size: 0.8rem; }
+.pill-purple { background: #f3e8ff; color: #7e22ce; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: 700; font-size: 0.8rem; }
+.pill-blue { background: #e0f2fe; color: #0369a1; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: 700; font-size: 0.8rem; }
+
+/* Tabs */
+.tabs-container {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 0.75rem 1.25rem;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  color: #047857;
+  border-bottom-color: #047857;
+  font-weight: 700;
+}
+
+/* Form controls */
+select, input[type="text"], input[type="password"], input[type="number"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  background: white;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+select:focus, input:focus {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* Slider Controls */
+.slider-group {
+  margin-bottom: 1.2rem;
+}
+
+.slider-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.slider-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #334155;
+}
+
+.slider-value-badge {
+  background: #ecfdf5;
+  color: #065f46;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.2rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid #a7f3d0;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: #e2e8f0;
+  outline: none;
+  transition: background 0.3s;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #059669;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);
+  border: 2px solid white;
+  transition: transform 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Dosage Result Cards */
+.dosage-card {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 1.4rem;
+  border: 1px solid #e2e8f0;
+}
+
+.dosage-card.chemical {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+  border-color: #fdba74;
+}
+
+.dosage-card.organic {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #86efac;
+}
+
+.dosage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.dosage-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+
+.dosage-stat-box {
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  text-align: center;
+}
+
+.dosage-stat-title {
+  font-size: 0.75rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.dosage-stat-num {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-top: 0.2rem;
+}
+
+/* Weather Risk Radar */
+.weather-container {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 20px;
+  padding: 1.6rem;
+}
+
+.weather-metric-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.weather-metric-item {
+  background: white;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  border: 1px solid #e0f2fe;
+  text-align: center;
+}
+
+.weather-risk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.8rem;
+}
+
+.risk-item {
+  background: white;
+  padding: 0.85rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.risk-item-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.risk-track {
+  background: #f1f5f9;
+  height: 8px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.risk-bar-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* Chatbot Styles */
+.chat-window {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+}
+
+.chat-header {
+  background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+  color: white;
+  padding: 1rem 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chat-body {
+  flex: 1;
+  padding: 1.2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  background: #f8fafc;
+}
+
+.chat-bubble {
+  max-width: 82%;
+  padding: 0.85rem 1.1rem;
+  border-radius: 16px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.chat-bubble.user {
+  align-self: flex-end;
+  background: #047857;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.chat-bubble.bot {
+  align-self: flex-start;
+  background: white;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-bottom-left-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.chat-chips {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.6rem 1.2rem;
+  background: #f1f5f9;
+  border-top: 1px solid #e2e8f0;
+}
+
+.chat-chip {
+  background: white;
+  border: 1px solid #cbd5e1;
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.chat-chip:hover {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+  color: #065f46;
+}
+
+.chat-input-bar {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.9rem 1.2rem;
+  background: white;
+  border-top: 1px solid #e2e8f0;
+  align-items: center;
+}
+
+.btn-mic {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 0.75rem;
+  border-radius: 12px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.btn-mic:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-mic.listening {
+  background: #dc2626;
+  color: white;
+  border-color: #b91c1c;
+  animation: pulse-mic 1.2s infinite ease-in-out;
+  box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.25);
+}
+
+@keyframes pulse-mic {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.6); }
+  70% { transform: scale(1.06); box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+.voice-btn {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #15803d;
+  transition: all 0.2s;
+  margin-left: auto;
+}
+
+.voice-btn:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.voice-btn.speaking {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+  animation: pulse-speaking 1s infinite alternate;
+}
+
+.voice-btn.loading {
+  background: #fef3c7;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
+@keyframes pulse-speaking {
+  0% { opacity: 0.8; }
+  100% { opacity: 1; transform: scale(1.02); }
+}
+
+@media (max-width: 768px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+  .agri-app-title { font-size: 1.9rem; }
+  .agri-header-card { padding: 1.6rem 1.4rem; }
+}

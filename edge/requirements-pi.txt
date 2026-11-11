@@ -1,0 +1,17 @@
+# AGROBOTAI on Raspberry Pi 4 (64-bit Raspberry Pi OS). No PyTorch / CUDA: models run with ONNX Runtime.
+fastapi
+uvicorn
+python-multipart
+pydantic
+numpy
+opencv-python-headless
+Pillow
+onnxruntime
+requests
+httpx
+python-dotenv
+# Farmer advice client (talks to an Ollama server; optional) and PDF scan reports
+openai
+reportlab
+# Chlorophyll / carotenoid heatmap images in every analysis
+matplotlib

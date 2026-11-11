@@ -1,0 +1,5 @@
+# Install only what matches the sensors you enabled in config.json
+adafruit-circuitpython-dht      # dht22
+adafruit-circuitpython-ads1x15  # soil_ads1115 (capacitive soil moisture via ADS1115)
+minimalmodbus                   # rs485_npk (7-in-1 soil sensor)
+# ds18b20 needs no package (uses the kernel 1-Wire driver)

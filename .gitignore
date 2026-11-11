@@ -1,0 +1,57 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Secrets and private data (never commit): keys, user accounts, farmers' scan photos, Pi backups
+.env
+*.env.local
+outputs/
+backups/
+logs/
+*.log
+*.db
+*.jks
+*.keystore
+key.properties
+local.properties
+
+# Datasets (download with scripts/download_leaf_datasets.py; each has its own licence)
+data/
+
+# Model weights: too big for git (GitHub limit 100 MB); published as release files instead
+*.pt
+*.pth
+*.onnx
+*.onnx.data
+*.h5
+*.keras
+models/trained_model/
+
+# Build outputs and installers
+*.apk
+*.aab
+*.exe
+_installer_temp/
+
+# Personal documents and assistant notes (not source code)
+*.docx
+*.pptx
+*.pdf
+PPT/
+memory/
+.claude/
+
+# Editors / OS
+.streamlit/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# College viva / presentation material (team names, college): kept on this laptop only
+generate_guide_pdf.py
+generate_examples_pdf.py
+handover.md

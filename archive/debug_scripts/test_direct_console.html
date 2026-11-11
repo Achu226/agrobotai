@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Direct Console Test</title>
+</head>
+<body>
+    <h1>Testing Console Output</h1>
+    <div id="output"></div>
+    <script>
+        const output = document.getElementById('output');
+
+        // Capture all console output
+        const oldLog = console.log;
+        const oldError = console.error;
+        const oldWarn = console.warn;
+
+        function addOutput(type, ...args) {
+            const div = document.createElement('div');
+            div.style.cssText = 'margin:5px;padding:10px;background:#f0f0f0;border-left:3px solid ' +
+                (type === 'error' ? 'red' : type === 'warn' ? 'orange' : 'blue');
+            div.textContent = `[${type}] ${args.join(' ')}`;
+            output.appendChild(div);
+        }
+
+        console.log = function(...args) {
+            addOutput('log', ...args);
+            oldLog.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            addOutput('error', ...args);
+            oldError.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            addOutput('warn', ...args);
+            oldWarn.apply(console, args);
+        };
+
+        window.onerror = function(msg, url, line, col, error) {
+            addOutput('error', 'Window Error:', msg, 'at', url, line, col);
+            if (error && error.stack) addOutput('error', 'Stack:', error.stack);
+            return false;
+        };
+
+        // Now load the actual app in an iframe
+        setTimeout(() => {
+            const iframe = document.createElement('iframe');
+            iframe.src = 'http://localhost:8000';
+            iframe.style.cssText = 'width:100%;height:600px;border:1px solid #ccc';
+            document.body.appendChild(iframe);
+
+            iframe.onload = () => {
+                console.log('App loaded. Upload an image and click RUN FULL DIAGNOSIS to see errors.');
+            };
+        }, 100);
+    </script>
+</body>
+</html>

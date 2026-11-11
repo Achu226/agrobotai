@@ -1,0 +1,36 @@
+{
+  "name": "pest",
+  "architecture": "efficientnet_v2_s",
+  "classes": [
+    "aphids",
+    "armyworm",
+    "beetle",
+    "bollworm",
+    "grasshopper",
+    "mites",
+    "mosquito",
+    "sawfly",
+    "stem_borer",
+    "no_pest"
+  ],
+  "input": {
+    "shape": [
+      null,
+      3,
+      224,
+      224
+    ],
+    "layout": "NCHW",
+    "range": "0-1 then ImageNet mean/std"
+  },
+  "val_accuracy": 100.0,
+  "source_file": "pest_model.pt",
+  "source_sha256": "99daaa99a320d615f7ab0b7361108b14883e867b07efdb632c5bad446a05ce96",
+  "onnx_sha256": "6ea10d35177ccf69a2f232099595a6bebb86612f2a009a1f79aff08ac5307240",
+  "exported_at": "2026-11-01T17:03:21",
+  "verified": {
+    "photos": 24,
+    "top1_agreement": "48/48",
+    "max_prob_diff": 3.5762786865234375e-07
+  }
+}

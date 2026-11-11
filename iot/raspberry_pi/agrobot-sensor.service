@@ -1,0 +1,15 @@
+[Unit]
+Description=AGROBOTAI field sensor agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Change "pi" and the path if your user or folder is different
+User=pi
+WorkingDirectory=/home/pi/agrobot
+ExecStart=/home/pi/agrobot/venv/bin/python /home/pi/agrobot/agrobot_sensor_agent.py
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,20 @@
+name: I'm using AGROBOTAI
+description: Tell us where you use AGROBOTAI (project, college, farm). Everything here is public.
+title: "Using AGROBOTAI: "
+labels: ["using-agrobotai"]
+body:
+  - type: markdown
+    attributes:
+      value: "Thanks! This page is public: share only what you are happy for everyone to see."
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Where do you use it?
+      options: [College / school project, Research, On a farm, Home garden, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: about
+    attributes:
+      label: Tell us about it (optional)
+      description: What you built or changed, which crops, what worked or did not.

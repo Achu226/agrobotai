@@ -1,0 +1,27 @@
+{
+  "created": "2026-10-18T22:43:23",
+  "method": "temperature scaling fitted on the validation split; ECE reported on the test split",
+  "disease": {
+    "temperature": 0.9135,
+    "test_accuracy_single_view": 99.41,
+    "ece_test_before": 0.0047,
+    "ece_test_after": 0.004,
+    "n_val": 2585,
+    "n_test": 2046
+  },
+  "pest": {
+    "temperature": 0.529,
+    "test_accuracy_single_view": 99.69,
+    "ece_test_before": 0.0143,
+    "ece_test_after": 0.0044,
+    "n_val": 459,
+    "n_test": 321
+  },
+  "image_quality": {
+    "note": "Limits are set just below the 0.5th percentile of the training-domain validation+test images.",
+    "min_sharpness": 30.37,
+    "min_brightness": 27.06,
+    "max_brightness": 239.19,
+    "n_images": 5411
+  }
+}

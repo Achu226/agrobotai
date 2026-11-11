@@ -1,0 +1,18 @@
+name: Bug report
+description: Something does not work.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: where
+    attributes:
+      label: Where (phone app, website, Raspberry Pi, laptop server)?
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps or error text (remove passwords and keys before posting)

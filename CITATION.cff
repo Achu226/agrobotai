@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use AGROBOTAI, please cite it as below."
+title: "AGROBOTAI: offline leaf disease and pest doctor for farmers (Flutter app, FastAPI server, Raspberry Pi)"
+authors:
+  - alias: "Achu226"
+repository-code: "https://github.com/Achu226/agrobotai"
+license: MIT
+version: "1.0.0"
+date-released: "2026-11-11"
+keywords:
+  - plant disease detection
+  - agriculture
+  - deep learning
+  - EfficientNetV2
+  - Raspberry Pi
+  - Flutter
+  - Tamil

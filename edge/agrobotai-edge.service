@@ -1,0 +1,19 @@
+# Optional: start AGROBOTAI when the Pi boots. Install only after ./start.sh works (see README.md):
+#   sed "s#__DIR__#$HOME/agrobotai_edge#g; s#__USER__#$USER#g" agrobotai-edge.service | sudo tee /etc/systemd/system/agrobotai-edge.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now agrobotai-edge
+[Unit]
+Description=AGROBOTAI Edge-AI crop health server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=__USER__
+WorkingDirectory=__DIR__
+ExecStart=__DIR__/start.sh --foreground
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:__DIR__/logs/server.log
+StandardError=append:__DIR__/logs/server.log
+
+[Install]
+WantedBy=multi-user.target

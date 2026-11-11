@@ -1,0 +1,39 @@
+{
+  "device_id": "field-pi-1",
+  "server_url": "auto",
+  "server_port": 8000,
+  "sensor_token": "",
+  "interval_seconds": 60,
+  "sensors": {
+    "dht22": {
+      "enabled": true,
+      "gpio": 17
+    },
+    "ds18b20": {
+      "enabled": false,
+      "device_id": ""
+    },
+    "soil_ads1115": {
+      "enabled": true,
+      "i2c_address": "0x48",
+      "channel": 0,
+      "calibration_dry_raw": 21000,
+      "calibration_wet_raw": 9000
+    },
+    "rs485_npk": {
+      "enabled": false,
+      "port": "/dev/ttyUSB0",
+      "slave_address": 1,
+      "baudrate": 9600,
+      "registers": {
+        "soil_moisture_pct": {"address": 0, "scale": 0.1},
+        "soil_temp_c": {"address": 1, "scale": 0.1, "signed": true},
+        "soil_ec": {"address": 2, "scale": 1},
+        "soil_ph": {"address": 3, "scale": 0.1},
+        "n": {"address": 4, "scale": 1},
+        "p": {"address": 5, "scale": 1},
+        "k": {"address": 6, "scale": 1}
+      }
+    }
+  }
+}
