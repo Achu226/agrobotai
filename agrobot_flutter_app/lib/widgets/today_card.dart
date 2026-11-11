@@ -61,8 +61,9 @@ class _TodayCardState extends State<TodayCard> {
         final warnings = nearby.length + alerts.length;
         final summary = [
           if (sprayLine != null) sprayLine,
-          if (reminders.isNotEmpty) context.tr('{n} reminders today', {'n': reminders.length}),
-          if (warnings > 0) context.tr('{n} alerts', {'n': warnings}),
+          if (reminders.isNotEmpty)
+            reminders.length == 1 ? context.tr('1 reminder today') : context.tr('{n} reminders today', {'n': reminders.length}),
+          if (warnings > 0) warnings == 1 ? context.tr('1 alert') : context.tr('{n} alerts', {'n': warnings}),
           if (sprayLine == null && reminders.isEmpty && warnings == 0) context.tr('Nothing needs attention'),
         ].join(' • ');
         Widget line(IconData icon, String text, {Color? color}) => Padding(

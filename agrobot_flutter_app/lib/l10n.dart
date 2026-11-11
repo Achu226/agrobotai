@@ -68,7 +68,7 @@ const _ta = <String, String>{
   'Plot': 'நிலம்',
   'Approved': 'ஏற்கப்பட்டது',
   'Rejected': 'நிராகரிக்கப்பட்டது',
-  'Pending review': 'சரிபார்ப்புக்குக் காத்திருக்கிறது',
+  'Pending review': 'சரிபார்ப்பில்',
   '1 scan waiting to upload': '1 ஸ்கேன் பதிவேற்றக் காத்திருக்கிறது',
   '{n} scans waiting to upload': '{n} ஸ்கேன்கள் பதிவேற்றக் காத்திருக்கின்றன',
   'Saved on this phone; they upload automatically when the laptop is reachable.':
@@ -456,6 +456,8 @@ const _ta = <String, String>{
   'No safe spraying window in the next 24 h': 'அடுத்த 24 மணி நேரத்தில் தெளிக்க ஏற்ற நேரம் இல்லை',
   '{n} reminders today': 'இன்று {n} நினைவூட்டல்கள்',
   '{n} alerts': '{n} எச்சரிக்கைகள்',
+  '1 alert': '1 எச்சரிக்கை',
+  '1 reminder today': 'இன்று 1 நினைவூட்டல்',
   'Nothing needs attention': 'கவனிக்க வேண்டியது எதுவும் இல்லை',
   '{name}: {n} confirmed scans near you': '{name}: உங்கள் அருகில் {n} உறுதியான ஸ்கேன்கள்',
   'Last 7 days: {scans} scans • spent ₹{spent} • earned ₹{earned}': 'கடந்த 7 நாட்கள்: {scans} ஸ்கேன்கள் • செலவு ₹{spent} • வருவாய் ₹{earned}',

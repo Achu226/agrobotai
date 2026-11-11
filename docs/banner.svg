@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360" role="img" aria-label="AGROBOTAI — the offline leaf doctor for farmers">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#062e24"/>
+      <stop offset="0.55" stop-color="#0b4d3a"/>
+      <stop offset="1" stop-color="#0f7a55"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.82" cy="0.35" r="0.55">
+      <stop offset="0" stop-color="#34d399" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#34d399" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6ee7b7"/>
+      <stop offset="1" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="360" rx="28" fill="url(#bg)"/>
+  <rect width="1280" height="360" rx="28" fill="url(#glow)"/>
+  <!-- leaf mark -->
+  <g transform="translate(1010 70)">
+    <path d="M110 10 C 200 40, 230 150, 150 230 C 90 290, 20 260, 10 200 C 0 120, 40 30, 110 10 Z" fill="url(#leaf)" opacity="0.92"/>
+    <path d="M150 230 C 120 170, 100 110, 112 18" stroke="#064e3b" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <path d="M128 150 L 70 120 M120 110 L 74 80 M136 190 L 84 182 M124 128 L 170 92 M134 172 L 186 140" stroke="#064e3b" stroke-width="5" fill="none" stroke-linecap="round" opacity="0.8"/>
+    <circle cx="70" cy="120" r="7" fill="#ecfdf5"/><circle cx="74" cy="80" r="6" fill="#ecfdf5"/>
+    <circle cx="170" cy="92" r="6" fill="#ecfdf5"/><circle cx="186" cy="140" r="7" fill="#ecfdf5"/>
+  </g>
+  <text x="72" y="140" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="84" font-weight="800" fill="#ffffff" letter-spacing="2">AGROBOTAI</text>
+  <text x="76" y="192" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="30" font-weight="500" fill="#a7f3d0">The offline leaf doctor for farmers</text>
+  <g font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="19" font-weight="600" fill="#ecfdf5">
+    <rect x="76" y="232" width="150" height="44" rx="22" fill="#ffffff" fill-opacity="0.12" stroke="#6ee7b7" stroke-opacity="0.45"/>
+    <text x="151" y="260" text-anchor="middle">16 crops</text>
+    <rect x="240" y="232" width="236" height="44" rx="22" fill="#ffffff" fill-opacity="0.12" stroke="#6ee7b7" stroke-opacity="0.45"/>
+    <text x="358" y="260" text-anchor="middle">99.7% on lab photos</text>
+    <rect x="490" y="232" width="214" height="44" rx="22" fill="#ffffff" fill-opacity="0.12" stroke="#6ee7b7" stroke-opacity="0.45"/>
+    <text x="597" y="260" text-anchor="middle">Tamil + 11 more</text>
+    <rect x="718" y="232" width="226" height="44" rx="22" fill="#ffffff" fill-opacity="0.12" stroke="#6ee7b7" stroke-opacity="0.45"/>
+    <text x="831" y="260" text-anchor="middle">Runs on Raspberry Pi</text>
+  </g>
+  <text x="76" y="318" font-family="Segoe UI, Helvetica Neue, Arial, sans-serif" font-size="17" fill="#6ee7b7" fill-opacity="0.85">Flutter app · FastAPI server · React website · EfficientNetV2 · no cloud needed</text>
+</svg>

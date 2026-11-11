@@ -1,97 +1,207 @@
-# AGROBOTAI — leaf doctor for farmers and home gardeners
+<p align="center">
+  <img src="docs/banner.svg" alt="AGROBOTAI — the offline leaf doctor for farmers" width="100%">
+</p>
 
-Photograph a leaf with the phone app and get the disease, the pest, how much of the leaf is affected,
-what to do (in Tamil, English and 10 more Indian languages) and when it is safe to spray.
-Runs offline on a laptop or a Raspberry Pi on the farm's Wi-Fi — no cloud, no account outside your network.
+<p align="center">
+  <a href="https://github.com/Achu226/agrobotai/releases/latest"><img src="https://img.shields.io/github/v/release/Achu226/agrobotai?style=for-the-badge&color=059669" alt="Latest release"></a>
+  <a href="https://github.com/Achu226/agrobotai/releases"><img src="https://img.shields.io/github/downloads/Achu226/agrobotai/total?style=for-the-badge&color=0f766e" alt="Downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/code-MIT-1f2937?style=for-the-badge" alt="MIT licence"></a>
+  <a href="https://github.com/Achu226/agrobotai/stargazers"><img src="https://img.shields.io/github/stars/Achu226/agrobotai?style=for-the-badge&color=f59e0b" alt="Stars"></a>
+</p>
 
-[![Latest release](https://img.shields.io/github/v/release/Achu226/agrobotai)](https://github.com/Achu226/agrobotai/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/Achu226/agrobotai/total)](https://github.com/Achu226/agrobotai/releases)
-[![Licence: MIT](https://img.shields.io/badge/code-MIT-green)](LICENSE)
-![Flutter](https://img.shields.io/badge/app-Flutter-02569B)
-![FastAPI](https://img.shields.io/badge/server-FastAPI-009688)
-![Raspberry Pi](https://img.shields.io/badge/edge-Raspberry%20Pi%204-C51A4A)
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white" alt="Flutter">
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white" alt="PyTorch">
+  <img src="https://img.shields.io/badge/ONNX_Runtime-005CED?style=flat-square&logo=onnx&logoColor=white" alt="ONNX Runtime">
+  <img src="https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React">
+  <img src="https://img.shields.io/badge/Raspberry_Pi-C51A4A?style=flat-square&logo=raspberrypi&logoColor=white" alt="Raspberry Pi">
+</p>
 
-**⬇️ Download:** the Android app and the trained disease model are on the
-[Releases page](https://github.com/Achu226/agrobotai/releases/latest).
+<h3 align="center">Photograph a leaf. Get the disease, what to do, and when it is safe to spray —<br>in Tamil, offline, on the farm's own Wi-Fi.</h3>
 
-**Using AGROBOTAI in your project, college work or farm?**
-[Tell us here](https://github.com/Achu226/agrobotai/issues/new?template=using-agrobotai.yml) — it takes a minute and
-helps the project. ⭐ Star the repo if it helped you.
+<p align="center">
+  <a href="https://github.com/Achu226/agrobotai/releases/latest"><b>⬇️ Download the app</b></a> ·
+  <a href="#-quick-start"><b>🚀 Quick start</b></a> ·
+  <a href="#-how-it-works"><b>🧠 How it works</b></a> ·
+  <a href="#-accuracy"><b>📊 Accuracy</b></a> ·
+  <a href="https://github.com/Achu226/agrobotai/issues/new?template=using-agrobotai.yml"><b>🙋 Tell us you use it</b></a>
+</p>
 
-## What it does
+<p align="center">
+  <img src="docs/screenshots/hero.png" alt="AGROBOTAI app: today summary, a scan result and the recovery tracker" width="92%">
+</p>
 
-| | |
+---
+
+## ✨ Why AGROBOTAI
+
+Most crop-doctor apps need fast internet and send your photos to a company's cloud. AGROBOTAI runs **on a laptop or a
+₹5,000 Raspberry Pi in the farmhouse**: the phone talks to it over Wi-Fi, photos never leave the farm, and it keeps
+working when the mobile signal does not. It is **honest when unsure** — below its confidence gate it says
+*"not sure, take another photo"* instead of guessing.
+
+## 🌾 Features
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🔬 Diagnose
+- **48 diseases, 16 crops** — tomato, potato, pepper, rice, banana, maize, grape, apple, orange and more
+- **9 insect pests** + "no pest" (pest model trained separately)
+- **Calibrated confidence** and a "not a supported crop" answer — never a forced guess
+- **AI focus heatmap** (Grad-CAM) and **affected-area %**
+- Advice in **Tamil, English and 10 more Indian languages**, voice questions, offline AI chat
+
+</td>
+<td width="50%" valign="top">
+
+### 🗓️ Plan
+- **Today card** — spray now?, reminders due, alerts, last 7 days
+- **Spray planner** from the real hourly forecast (rain, wind, heat)
+- **Spray dose calculator** with the **harvest-safe date**
+- **Fertilizer bags** from the Soil Health Card N-P-K
+- **Mandi prices** (Agmarknet) and **Kisan Call Centre** on every result
+
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
+
+### 📈 Track
+- **Recovery tracker** per plot with **before / after photos**
+- **Farm diary** with repeating reminders and **voice notes**
+- **Profit book** — spent, earned, profit per plot, *where the money goes*
+- **Excel export** of diary and scans for the bank or officer
+
+</td>
+<td width="50%" valign="top">
+
+### 📡 Connect
+- **Disease alerts near you** — what other farmers confirmed in your village (counts only)
+- **IoT soil and weather sensors** on the Raspberry Pi, with phone alerts
+- **Offline queue** — scans taken without signal upload later; **offline guide**
+- **Home-garden mode** for pots and terraces · **admin outbreak dashboard**
+
+</td>
+</tr>
+</table>
+
+## 📱 Screenshots
+
+<table>
+<tr>
+<td align="center"><img src="docs/screenshots/app_today.png" width="200"><br><sub><b>Today</b> at a glance</sub></td>
+<td align="center"><img src="docs/screenshots/app_result.png" width="200"><br><sub><b>Scan result</b> with confidence</sub></td>
+<td align="center"><img src="docs/screenshots/app_plots.png" width="200"><br><sub><b>Recovery</b>: first vs latest</sub></td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screenshots/app_diary.png" width="200"><br><sub><b>Profit</b> & where money goes</sub></td>
+<td align="center"><img src="docs/screenshots/app_guide.png" width="200"><br><sub><b>Disease guide</b>, works offline</sub></td>
+<td align="center"><img src="docs/screenshots/app_tamil.png" width="200"><br><sub>Whole app in <b>Tamil</b></sub></td>
+</tr>
+</table>
+
+<details>
+<summary><b>🖥️ Farmer website</b> (same account as the app) — click to open</summary>
+<br>
+<img src="docs/screenshots/farm_overview.png" alt="Alerts near you, weather and spray planner">
+<img src="docs/screenshots/profit_book.png" alt="Profit book">
+<img src="docs/screenshots/fertilizer.png" alt="Fertilizer bag calculator">
+<img src="docs/screenshots/my_scans.png" alt="My scans with PDF reports">
+<p align="center"><img src="docs/screenshots/mobile_farm.png" width="300" alt="Website on a phone"></p>
+</details>
+
+## 🧠 How it works
+
+```mermaid
+flowchart LR
+    A["📱 Flutter app<br/>camera · diary · Tamil"] -- "Wi-Fi (farm LAN)" --> B
+    W["🖥️ React website<br/>#farm · #admin"] --> B
+    S["🌡️ Soil & weather<br/>sensors"] --> P
+    subgraph B["FastAPI server — laptop (CUDA) or Raspberry Pi 4 (ONNX)"]
+        Q["Image quality gate"] --> D["Disease model<br/>EfficientNetV2-S · 48 classes"]
+        Q --> T["Pest model<br/>EfficientNetV2-S · 10 classes"]
+        D --> C["Temperature calibration<br/>'not sure' below 0.90"]
+        T --> C
+        C --> V["Advice · severity · Grad-CAM<br/>dose · spray plan"]
+        V --> DB[("SQLite<br/>scans · diary · users")]
+    end
+    P["Raspberry Pi"] --- B
+    V -. "optional" .-> L["🤖 Local LLM (Ollama)<br/>Tamil chat"]
+    V -. "public data" .-> O["☁️ Open-Meteo weather<br/>Agmarknet prices"]
+```
+
+## 📊 Accuracy
+
+Measured on **held-out photos the models never saw in training** (duplicates kept on one side of the split).
+
+| Test | Result |
 |---|---|
-| 🍃 **Disease check** | 48 classes, 16 crops: tomato, potato, bell pepper, rice, banana, maize, grape, apple, orange, peach, cherry, strawberry, squash, soybean, blueberry, raspberry. Leaves of other plants are reported as "not a supported crop", never guessed. |
-| 🐛 **Pest check** | 9 pests (aphids, armyworm, beetle, bollworm, grasshopper, mites, mosquito, sawfly, stem borer) + "no pest". |
-| 🤔 **Honest when unsure** | Calibrated confidence; below the gate the app says "not sure, take another photo" instead of a wrong answer. |
-| 💬 **Advice & chat** | Integrated pest management advice per disease; voice questions; offline LLM (Ollama, gemma3:4b) for Tamil chat. |
-| 🧴 **Spray planner** | From the real hourly forecast (Open-Meteo): no rain for 6 h, wind 3–15 km/h, below 32 °C. |
-| 🧮 **Dosage & fertilizer** | Spray tank mixes; Soil Health Card N-P-K → bags of Urea/DAP/MOP. |
-| 💰 **Farm diary & profit book** | Sprays, fertilizer, labour and sales per plot, with one-time or repeating reminders ("water every 3 days") and profit per plot. |
-| 📣 **Disease alerts near you** | What other farmers' scans confirmed in your village in the last 14 days (counts only, never names). |
-| 📤 **Records export** | Diary and scans as a CSV file for Excel (bank, agriculture officer, own books); the website also lists your scans with PDF reports. |
-| 🗓️ **Today card** | Home screen: spraying now, reminders due today, alerts, and the last 7 days at a glance; a Sunday-morning weekly nudge. |
-| 🪴 **Home-garden mode** | For pots and terraces: spray doses per litre, farm-only tools hidden. |
-| 📷 **Before / after photos** | First and latest photo of each plot side by side, with the affected-area trend. |
-| 🎙️ **Voice note** | Speak a diary note instead of typing (Whisper on the server). |
-| 🌡️ **Pi health warnings** | Phone notification when the Raspberry Pi overheats or its power supply is weak. |
-| 🔁 **Rescan reminder** | After a disease result: "remind me to scan again in 7 days", so the recovery tracker gets a second point. |
-| ☎️ **Kisan Call Centre** | Every uncertain or disease result shows India's free farmer helpline (1800-180-1551) with a copy button. |
-| 📚 **Offline guide** | The disease & pest guide is saved on the phone and shown without a connection. |
-| 📊 **Where the money goes** | Spending per activity (labour, spray, seed…) in the profit card. |
-| 🧺 **Harvest-safe date** | "I sprayed this today" records the spray and reminds you on the first day it is safe to harvest. |
-| 📈 **Recovery tracker** | Affected-area trend per plot across scans. |
-| 🛒 **Market prices** | Agmarknet mandi prices (needs a free data.gov.in key). |
-| 📡 **IoT** | Raspberry Pi / ESP32 soil-moisture and weather sensors with alerts. |
-| 🗺️ **Outbreak dashboard** | Admin website: confirmed diseases/pests per village. |
-| 📶 **Works offline** | Scans taken without a connection are queued and uploaded later. |
+| Lab photos — tomato, potato, pepper | **99.71%** |
+| Rice, banana and 11 more crops | **98.28%** |
+| Pest model (9 pests + no pest) | **99.78%**, 0 false alarms on 534 pest-free leaves |
+| Outdoor field photos (PlantDoc), full app | 60% correct · 25% "not sure" · 13% wrong |
 
-## Results (held-out test photos, never used in training)
+> [!NOTE]
+> Outdoor photos are the hard part for every leaf model. Treat a field result as a first opinion and confirm with the
+> Kisan Call Centre (1800-180-1551) or your agriculture officer before spraying.
 
-| Test | Accuracy |
-|---|---|
-| Lab photos, tomato/potato/pepper | 99.71% |
-| New crops (rice, banana, 11 PlantVillage crops) | 98.28% |
-| Outdoor field photos (PlantDoc), raw model | 55.88% |
-| Outdoor field photos, full app | 60% correct · 25% "not sure" · 13% wrong |
-| Pest model | 99.78%; 0 false alarms on 534 pest-free leaves |
+## 🚀 Quick start
 
-Outdoor photos are the weak spot: treat a field result as a first opinion.
+**1 · Server (Windows laptop)**
 
-## Parts
+```bat
+SETUP_ALL.bat     :: Python venv, packages, website build, firewall rule
+start.bat         :: server on http://<laptop-ip>:8000
+```
+
+From the [latest release](https://github.com/Achu226/agrobotai/releases/latest) put `disease_model.pt`,
+`disease_classes.json` and `calibration.json` in `models/`. Copy `.env.example` to `.env`.
+
+**2 · Phone** — install `AGROBOTAI.apk` from the release, then *Login → Change server → Find server on Wi-Fi*.
+
+**3 · Raspberry Pi (optional)** — put `disease_model.onnx` + `disease_model.json` in `models/onnx/` and follow
+[`edge/README.md`](edge/README.md). A scan takes about 4 seconds on a Pi 4.
+
+<details>
+<summary><b>Retrain the models</b></summary>
+
+`scripts/download_leaf_datasets.py` → `scripts/build_extended_dataset.py` → `scripts/train_extended_model.py`
+→ `scripts/compare_disease_models.py` (a new model must not lose accuracy on any earlier test set)
+→ `scripts/calibrate_models.py` → `scripts/export_onnx.py`.
+</details>
+
+> [!IMPORTANT]
+> The **pest model is not published**: the licence of its training photos is not confirmed. Without it the app says
+> "pest model unavailable" and everything else works. Train your own with `run_training.py`.
+
+## 🗂️ Project structure
 
 | Folder | What |
 |---|---|
-| `server.py`, `src/` | FastAPI server, models, advice, SQLite store (`/api/v1`) |
-| `agrobot_flutter_app/` | Android app (Flutter) |
-| `frontend/` | Website (React + Vite): diagnosis, `#farm` farmer page, `#admin` dashboard |
-| `edge/` | Raspberry Pi 4 server (ONNX Runtime), install and deploy scripts |
-| `iot/` | Sensor agent for the Pi |
-| `scripts/` | Dataset download/build, training, calibration, evaluation, deploy |
-| `tests/` | Server tests (`pytest`); app tests in `agrobot_flutter_app/test` |
+| [`agrobot_flutter_app/`](agrobot_flutter_app) | Android app (Flutter) — 82 widget and unit tests |
+| [`server.py`](server.py), [`src/`](src) | FastAPI server: models, calibration, advice, SQLite (`/api/v1`) |
+| [`frontend/`](frontend) | Website (React + Vite): diagnosis, `#farm` farmer page, `#admin` dashboard |
+| [`edge/`](edge) | Raspberry Pi 4 server (ONNX Runtime), install, deploy and auto-off |
+| [`iot/`](iot) | Soil-moisture and weather sensor agent for the Pi |
+| [`scripts/`](scripts) | Dataset build, training, calibration, evaluation, deploy |
+| [`tests/`](tests) | Server tests (`pytest`, 170+) |
 
-## Run it (Windows laptop)
+## 🗺️ Roadmap
 
-```bat
-SETUP_ALL.bat          :: Python venv, packages, website build, firewall rule
-start.bat              :: server on http://<laptop-ip>:8000
-```
+- [ ] Garden plants (rose, money plant, hibiscus, marigold) — trained, held back until they stop hurting farm accuracy
+- [ ] Model inside the phone for scans with no laptop or Pi nearby
+- [ ] More languages for the app buttons (advice is already in 12)
+- [ ] Retraining from farmers' own reviewed photos
 
-Model weights are too big for git. From the [latest release](https://github.com/Achu226/agrobotai/releases/latest) put
-`disease_model.pt`, `disease_classes.json` and `calibration.json` into `models/`, and `disease_model.onnx` + `disease_model.json`
-into `models/onnx/` (for the Raspberry Pi).
-The **pest model is not published**: the source licence of its training photos is not confirmed. Without it the app says
-"pest model unavailable" and everything else works; train your own with `run_training.py` and your own insect photos.
-Copy `.env.example` to `.env` and edit it; never commit `.env`.
+## 🙋 Using AGROBOTAI?
 
-Phone app: `cd agrobot_flutter_app && flutter build apk --release`, then in the app *Login → Change server*.
-Raspberry Pi: see [`edge/README.md`](edge/README.md).
+College project, research, a farm or a terrace garden — [**tell us in one minute**](https://github.com/Achu226/agrobotai/issues/new?template=using-agrobotai.yml)
+and ⭐ star the repo. Found a bug? [Open an issue](https://github.com/Achu226/agrobotai/issues/new?template=bug.yml).
 
-Retrain: `scripts/download_leaf_datasets.py` → `scripts/build_extended_dataset.py` → `scripts/train_extended_model.py`
-→ `scripts/compare_disease_models.py` → `scripts/calibrate_models.py` → `scripts/export_onnx.py`.
-
-## Datasets and credits
+## 📚 Datasets and credits
 
 The models are trained on these public datasets (not included in this repository):
 
@@ -103,16 +213,9 @@ The models are trained on these public datasets (not included in this repository
 | Rice (Bangladesh), BananaLSD (Mendeley 10.17632/9tb7k297ff.1), chilli, betel, turmeric — via Project-AgML | CC BY 4.0 |
 | Beans (AI Lab Makerere) | MIT |
 
-Because the disease model is trained on PlantVillage (CC BY-SA), the released model weights are shared under
-**CC BY-SA 4.0** with the credits above.
+## 📄 Cite and licence
 
-## Cite
+Use the **"Cite this repository"** button on the right ([`CITATION.cff`](CITATION.cff)).
+Source code: [MIT](LICENSE) · model weights: **CC BY-SA 4.0** (trained on PlantVillage, CC BY-SA) · datasets: their own licences.
 
-If you use AGROBOTAI in research or a college project, please cite it: GitHub shows a **"Cite this repository"**
-button (from [`CITATION.cff`](CITATION.cff)).
-
-## Licence
-
-Source code: [MIT](LICENSE). Model weights: CC BY-SA 4.0 (see above). Datasets: their own licences.
-
-AGROBOTAI gives a first opinion, not a guarantee. Check pesticide labels and local agriculture officers before spraying.
+<p align="center"><sub>AGROBOTAI gives a first opinion, not a guarantee. Always read the pesticide label.</sub></p>

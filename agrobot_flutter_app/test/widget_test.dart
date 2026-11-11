@@ -244,7 +244,7 @@ void main() {
         })));
     await pumpWith(tester, s, const SingleChildScrollView(child: TodayCard()));
     await pumpUntil(tester, () => find.text('Today').evaluate().isNotEmpty);
-    expect(find.text('Spray window: 13:00–17:00 • 1 reminders today • 2 alerts'), findsOneWidget);
+    expect(find.text('Spray window: 13:00–17:00 • 1 reminder today • 2 alerts'), findsOneWidget);
     await tester.tap(find.text('Today'));
     await tester.pumpAndSettle();
     expect(find.text('North field: Spray — Neem oil'), findsOneWidget);

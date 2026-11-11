@@ -112,12 +112,17 @@ class ReviewChip extends StatelessWidget {
       'rejected' => (Colors.red, 'Rejected'),
       _ => (Colors.orange, 'Pending review'),
     };
-    return Chip(
-      label: Text(context.tr(label), style: TextStyle(fontSize: 11, color: color.shade900)),
-      backgroundColor: color.shade50,
-      side: BorderSide(color: color.shade200),
-      visualDensity: VisualDensity.compact,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    // Capped width: long translations (Tamil) wrap inside the chip instead of squeezing the scan title
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 104),
+      child: Chip(
+        label: Text(context.tr(label),
+            maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: color.shade900)),
+        backgroundColor: color.shade50,
+        side: BorderSide(color: color.shade200),
+        visualDensity: VisualDensity.compact,
+        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
     );
   }
 }
