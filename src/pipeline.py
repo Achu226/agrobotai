@@ -88,7 +88,7 @@ def analyze_image(
 
     effective_crop = crop
     if not crop or crop.lower() in ("auto", "auto-detect", "detect", "auto-detect plant species"):
-        effective_crop = crop_info.get("predicted_crop", "Tomato")
+        effective_crop = crop_info.get("predicted_crop") or "Plant"  # never guess a crop the model is unsure of
 
     spectral = analyze_ndre_cri(image_rgb, cri_variant=cri_variant)
     ndre = spectral.get("ndre") or {"ok": False, "error": "NDRE unavailable", "score": None, "status": "Failed"}

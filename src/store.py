@@ -156,7 +156,13 @@ def _migration_4(conn: sqlite3.Connection):
     conn.execute("ALTER TABLE diary_entries ADD COLUMN repeat_days INTEGER")
 
 
-MIGRATIONS = [_migration_1, _migration_2, _migration_3, _migration_4]
+def _migration_5(conn: sqlite3.Connection):
+    # "Ask an expert": the farmer's question on a scan; the answer is the review comment
+    conn.execute("ALTER TABLE scans ADD COLUMN question TEXT")
+    conn.execute("ALTER TABLE scans ADD COLUMN asked_at TEXT")
+
+
+MIGRATIONS = [_migration_1, _migration_2, _migration_3, _migration_4, _migration_5]
 
 
 def migrate():
@@ -333,7 +339,7 @@ SCAN_LIST_COLUMNS = """s.id, s.uuid, s.user_id, u.username, u.full_name, s.sourc
     s.crop_selected, s.crop_reported, s.inference_status, s.summary_state, s.disease_label, s.disease_state,
     s.disease_confidence, s.pest_label, s.pest_state, s.pest_confidence, s.health_index, s.severity_pct,
     s.model_versions, s.error, s.review_status, s.reviewed_by, r.username AS reviewer_username,
-    s.reviewed_at, s.review_comment, s.plot, s.image_path IS NOT NULL AS has_image"""
+    s.reviewed_at, s.review_comment, s.plot, s.question, s.asked_at, s.image_path IS NOT NULL AS has_image"""
 
 
 def _scan_dict(row, include_result: bool = False) -> dict:
@@ -404,9 +410,9 @@ def get_scan_image_path(scan_id: int) -> str | None:
 
 
 def list_scans(user_id: int | None = None, review_status: str | None = None, include_failed: bool = False,
-               source: str | None = None, limit: int = 50) -> list[dict]:
+               source: str | None = None, limit: int = 50, asked: bool = False) -> list[dict]:
     migrate()
-    where, args = [], []
+    where, args = (["s.question IS NOT NULL"] if asked else []), []
     if user_id is not None:
         where.append("s.user_id = ?")
         args.append(user_id)
@@ -465,6 +471,20 @@ def review_scan(scan_id: int, admin_id: int, decision: str, comment: str) -> dic
             """UPDATE scans SET review_status = ?, reviewed_by = ?, reviewed_at = ?, review_comment = ?
                WHERE id = ? AND inference_status != 'failed'""",
             (decision, admin_id, now_iso(), comment.strip(), scan_id),
+        )
+        if cur.rowcount == 0:
+            return None
+    return get_scan(scan_id, include_result=False)
+
+
+def ask_expert(scan_id: int, user_id: int, question: str) -> dict | None:
+    """Puts the farmer's question on their own scan and sends it back to the review queue (status pending)."""
+    migrate()
+    with connect() as conn:
+        cur = conn.execute(
+            """UPDATE scans SET question = ?, asked_at = ?, review_status = 'pending'
+               WHERE id = ? AND user_id = ? AND inference_status != 'failed'""",
+            (question.strip(), now_iso(), scan_id, user_id),
         )
         if cur.rowcount == 0:
             return None

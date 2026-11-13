@@ -173,3 +173,16 @@ cat /proc/device-tree/model; free -h; df -h /; hostname -I; python3 --version; v
 ```
 
 `get_throttled` should print `throttled=0x0`. Anything else means the power supply is too weak (use the official 5 V 3 A supply) or the Pi is overheating.
+
+### Farm Wi-Fi, USB backup, expert questions, crop calendar (2026-11-13)
+
+- **Farm Wi-Fi (no router needed).** `farm_wifi.sh` + `agrobotai-farm-wifi.service`: at boot the Pi waits 60 s for its normal Wi-Fi; if there is none it starts its own Wi-Fi **AGROBOTAI**.
+  - Phones join AGROBOTAI and tap *Find server on Wi-Fi*; the server is `http://10.42.0.1:8000`.
+  - See the password (random, made on the Pi): `sudo ./farm_wifi.sh password`. Stop it: `sudo ./farm_wifi.sh off`.
+  - One Wi-Fi radio: while the hotspot is on, the Pi is not on the home Wi-Fi and the laptop backup cannot reach it. It stays on until `off` or a reboot.
+  - Enable: `sed "s#__DIR__#$HOME/agrobotai_edge#g" agrobotai-farm-wifi.service | sudo tee /etc/systemd/system/agrobotai-farm-wifi.service && sudo systemctl daemon-reload && sudo systemctl enable agrobotai-farm-wifi`
+- **USB backup.** `usb_backup.sh` + `agrobotai-usb-backup.timer`: every day at 21:00 (or at the next boot) the Pi copies the same archive as the laptop backup to `agrobotai_backups/` on a plugged-in USB stick, keeping 7. No stick = skipped (`logs/usb_backup.log`). The archive holds password hashes and `.env`: keep the stick safe.
+- **Ask an expert.** `POST /api/v1/scans/{id}/ask`. The admin page lists *Questions from farmers*; the answer is the review comment, shown on the scan and on the Today card.
+- **Crop calendar.** `GET/POST /api/v1/calendar` (10 crops): sowing date → dated tasks saved as diary reminders. Timings are general and approximate.
+- **3-photo scan.** `/api/v1/analyze` accepts `file2`, `file3`: up to 3 leaves of one plant, averaged for the disease decision.
+- **Plant name.** The crop is named only when the model's probabilities for that crop add up to at least 90 %; otherwise "Crop not identified".

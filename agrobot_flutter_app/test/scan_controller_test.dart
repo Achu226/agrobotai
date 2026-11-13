@@ -130,6 +130,25 @@ void main() {
       return c;
     }
 
+    test('extra leaves of the same plant are sent with the first photo (max 3)', () async {
+      final c = await captured(okServer);
+      final firstId = c.clientRequestId;
+      for (var i = 0; i < 3; i++) {
+        await c.addLeaf();
+        await c.capture();
+      }
+      expect(c.phase, ScanPhase.imageCaptured);
+      expect(c.capturedImage, fakePhoto);
+      expect(c.extraImages.length, 2); // the third addLeaf is ignored
+      expect(c.clientRequestId, isNot(firstId));
+      await c.analyze();
+      final body = latin1.decode(okServer.requests.last.bodyBytes);
+      expect(body, contains('name="file2"'));
+      expect(body, contains('name="file3"'));
+      await c.retake();
+      expect(c.extraImages, isEmpty);
+    });
+
     test('success shows the stored server result', () async {
       final events = <String>[];
       final c = await captured(okServer, events: events);

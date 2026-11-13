@@ -88,7 +88,7 @@ def _save_web_scan(result: dict) -> int:
         "source": "web",
         "captured_at": result.get("timestamp"),
         "crop_selected": result.get("selected_crop"),
-        "crop_reported": result.get("crop"),
+        "crop_reported": (result.get("crop_classification") or {}).get("predicted_crop"),
         "inference_status": "succeeded" if disease.get("ok") and pest.get("ok") else "partial",
         "disease_label": disease.get("display_name") if disease.get("ok") else None,
         "disease_confidence": disease.get("confidence"),

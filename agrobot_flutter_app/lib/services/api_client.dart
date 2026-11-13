@@ -183,6 +183,7 @@ class AgrobotApi {
   /// the server returns the already-saved scan instead of creating a duplicate.
   Future<AnalyzeResponse> analyze(
     Uint8List imageBytes, {
+    List<Uint8List> extraImages = const [],
     required String clientRequestId,
     String filename = 'leaf.jpg',
     String? crop,
@@ -200,6 +201,9 @@ class AgrobotApi {
       ..fields['plot'] = plot ?? ''
       ..fields['captured_at'] = capturedAt?.toIso8601String() ?? ''
       ..files.add(http.MultipartFile.fromBytes('file', imageBytes, filename: filename));
+    for (var i = 0; i < extraImages.length && i < 2; i++) {
+      req.files.add(http.MultipartFile.fromBytes('file${i + 2}', extraImages[i], filename: 'leaf${i + 2}.jpg'));
+    }
     final res = await _send(() async => http.Response.fromStream(await _client.send(req)), analyzeTimeout);
     return AnalyzeResponse.fromJson(_decode(res));
   }
@@ -326,6 +330,10 @@ class AgrobotApi {
   Future<Map<String, dynamic>> dosage(int scanId, {double acres = 1, double tankLiters = 15}) =>
       _getJson('/api/v1/dosage', query: {'scan_id': '$scanId', 'acres': '$acres', 'tank_liters': '$tankLiters'});
 
+  /// Sends the farmer's question about their own scan to the agriculture officer / admin.
+  Future<ScanRecord> askExpert(int id, String question) async =>
+      ScanRecord.fromJson((await _postJson('/api/v1/scans/$id/ask', {'question': question}))['scan'] as Map<String, dynamic>);
+
   Future<ScanRecord> review(int id, {required bool approve, String comment = ''}) async => ScanRecord.fromJson(
       (await _postJson('/api/v1/scans/$id/review', {'decision': approve ? 'approved' : 'rejected', 'comment': comment}))['scan']
           as Map<String, dynamic>);
@@ -373,6 +381,15 @@ class AgrobotApi {
 
   Future<Map<String, dynamic>> addDiaryEntry(Map<String, dynamic> entry) async =>
       (await _postJson('/api/v1/diary', entry))['entry'] as Map<String, dynamic>;
+
+  /// Crops that have a crop calendar.
+  Future<List<String>> calendarCrops() async =>
+      ((await _getJson('/api/v1/calendar'))['crops'] as List<dynamic>? ?? const []).cast<String>();
+
+  /// Dated tasks for a crop sown on [sownOn] (yyyy-mm-dd); [save] stores them as diary reminders on [plot].
+  Future<Map<String, dynamic>> calendar(String crop, String sownOn, String language, {String? plot}) => plot == null
+      ? _getJson('/api/v1/calendar', query: {'crop': crop, 'sown_on': sownOn, 'language': language})
+      : _postJson('/api/v1/calendar', {'plot': plot, 'crop': crop, 'sown_on': sownOn, 'language': language});
 
   Future<void> deleteDiaryEntry(int id) async =>
       _decode(await _send(() => _client.delete(_uri('/api/v1/diary/$id'), headers: _authHeaders), _shortTimeout));

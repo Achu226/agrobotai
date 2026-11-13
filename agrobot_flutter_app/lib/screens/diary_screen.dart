@@ -101,6 +101,13 @@ class _DiaryViewState extends State<DiaryView> {
     await _refresh();
   }
 
+  Future<void> _calendar() async {
+    final saved = await showModalBottomSheet<int>(context: context, isScrollControlled: true, builder: (_) => const _CalendarForm());
+    if (saved == null || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.tr('{n} reminders added to the diary', {'n': saved}))));
+    await _refresh(); // _load schedules the phone reminders for the new entries
+  }
+
   /// Sends the diary as a CSV file (opens in Excel) through the phone's share sheet.
   Future<void> _shareRecords() async {
     final messenger = ScaffoldMessenger.of(context);
@@ -168,6 +175,7 @@ class _DiaryViewState extends State<DiaryView> {
           }
           return ListView(padding: const EdgeInsets.fromLTRB(12, 12, 12, 96), children: [
             add,
+            OutlinedButton.icon(onPressed: _calendar, icon: const Icon(Icons.calendar_month), label: Text(context.tr('Make crop calendar'))),
             if (entries.isNotEmpty)
               TextButton.icon(
                   onPressed: _shareRecords, icon: const Icon(Icons.ios_share), label: Text(context.tr('Share records (Excel file)'))),
@@ -258,6 +266,115 @@ class _DiaryViewState extends State<DiaryView> {
           '⏰ ${context.tr('Reminder')}: ${e['remind_on']}${e['repeat_days'] != null ? ' • ${context.tr(reminderRepeats[e['repeat_days']] ?? 'Every {n} days', {'n': e['repeat_days']})}' : ''}',
       ].join('\n')),
       trailing: IconButton(tooltip: context.tr('Delete'), icon: const Icon(Icons.delete_outline), onPressed: () => _delete(e)),
+    );
+  }
+}
+
+/// Crop calendar: crop + plot + sowing date -> preview of the dated tasks -> saved as diary reminders.
+class _CalendarForm extends StatefulWidget {
+  const _CalendarForm();
+
+  @override
+  State<_CalendarForm> createState() => _CalendarFormState();
+}
+
+class _CalendarFormState extends State<_CalendarForm> {
+  late final Future<List<String>> _crops = context.read<SessionState>().api.calendarCrops();
+  final _plot = TextEditingController();
+  String? _crop;
+  DateTime _sown = DateTime.now();
+  Map<String, dynamic>? _preview;
+  String? _error;
+  bool _busy = false;
+
+  @override
+  void dispose() {
+    _plot.dispose();
+    super.dispose();
+  }
+
+  Future<void> _run({bool save = false}) async {
+    if (_crop == null) return;
+    final session = context.read<SessionState>();
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      final r = await session.api.calendar(_crop!, _iso(_sown), session.language, plot: save ? _plot.text.trim() : null);
+      if (!mounted) return;
+      if (save) {
+        Navigator.pop(context, (r['entries'] as List).length);
+        return;
+      }
+      setState(() => _preview = r);
+    } on ApiException catch (e) {
+      if (mounted) setState(() => _error = e.message);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tasks = (_preview?['tasks'] as List? ?? const []).cast<Map<String, dynamic>>();
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(context).viewInsets.bottom),
+      child: FutureBuilder<List<String>>(
+        future: _crops,
+        builder: (context, snap) {
+          if (snap.hasError) return MessagePanel(icon: Icons.cloud_off, title: 'Could not load the crop list', message: '${snap.error}');
+          if (!snap.hasData) return const SizedBox(height: 120, child: Center(child: CircularProgressIndicator()));
+          return ListView(shrinkWrap: true, children: [
+            Text(context.tr('Make crop calendar'), style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _crop,
+              decoration: InputDecoration(labelText: context.tr('Crop')),
+              items: [for (final c in snap.data!) DropdownMenuItem(value: c, child: Text(context.tr(c)))],
+              onChanged: (v) => setState(() {
+                _crop = v;
+                _preview = null;
+              }),
+            ),
+            TextField(controller: _plot, maxLength: 60, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: context.tr('Plot / field name'))),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: const Icon(Icons.event),
+              title: Text(context.tr('Sowing / transplanting date')),
+              subtitle: Text(_iso(_sown)),
+              onTap: () async {
+                final d = await showDatePicker(
+                    context: context, initialDate: _sown, firstDate: DateTime(DateTime.now().year - 1), lastDate: DateTime(DateTime.now().year + 2));
+                if (d != null) {
+                  setState(() {
+                    _sown = d;
+                    _preview = null;
+                  });
+                }
+              },
+            ),
+            if (_error != null) Text(_error!, style: const TextStyle(color: Colors.red)),
+            if (_preview != null) ...[
+              Text('${_preview!['note']}', style: TextStyle(fontSize: 12, color: Colors.grey.shade700)),
+              for (final t in tasks)
+                ListTile(
+                  dense: true,
+                  contentPadding: EdgeInsets.zero,
+                  leading: Icon(diaryKinds[t['kind']]?.$2 ?? Icons.event_note, color: kGreen),
+                  title: Text('${t['task']}'),
+                  subtitle: Text('${t['date']} • ${context.tr('Day {n}', {'n': t['day']})}'),
+                ),
+            ],
+            const SizedBox(height: 8),
+            _preview == null
+                ? FilledButton(onPressed: _crop == null || _busy ? null : _run, child: Text(context.tr('Show the calendar')))
+                : FilledButton(
+                    onPressed: _busy || _plot.text.trim().isEmpty ? null : () => _run(save: true),
+                    child: Text(context.tr('Save as diary reminders'))),
+          ]);
+        },
+      ),
     );
   }
 }

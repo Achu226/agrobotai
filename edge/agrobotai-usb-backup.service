@@ -1,0 +1,8 @@
+[Unit]
+Description=AGROBOTAI daily backup to a USB stick
+
+[Service]
+Type=oneshot
+ExecStart=__DIR__/usb_backup.sh
+StandardOutput=append:__DIR__/logs/usb_backup.log
+StandardError=append:__DIR__/logs/usb_backup.log

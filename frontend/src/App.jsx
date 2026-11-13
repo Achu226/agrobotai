@@ -1031,25 +1031,24 @@ function AppContent() {
             </div>
           ) : (
             <div>
-              {/* Plant Species Auto-Classifier Badge */}
-              {result.crop_classification?.ok && (
-                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1.1rem 1.4rem', borderRadius: '18px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.8rem', boxShadow: '0 4px 15px rgba(4,120,87,0.06)' }}>
-                  <div>
-                    <span style={{ fontSize: '0.82rem', color: '#047857', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      🔍 Plant Species Neural Classifier Result
-                    </span>
-                    <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#064e3b', margin: '0.2rem 0' }}>
-                      {CROP_ICONS[result.crop] || '🌱'} Identified Crop: <b>{result.crop}</b>
-                    </h3>
-                    <span style={{ fontSize: '0.88rem', color: '#047857' }}>
-                      Species Identification Confidence: <b>{result.crop_classification.confidence}%</b>
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '0.85rem', background: 'white', padding: '0.6rem 1.1rem', borderRadius: '14px', border: '1px solid #6ee7b7', color: '#064e3b', fontWeight: '600' }}>
-                    ✅ Diagnostic models auto-calibrated for {result.crop}
-                  </div>
+              {/* Crop named by the disease model only when it is sure (sum of that crop's probabilities >= 90%) */}
+              {result.crop_classification?.ok && (result.crop_classification.predicted_crop ? (
+                <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1.1rem 1.4rem', borderRadius: '18px', marginBottom: '1.5rem', boxShadow: '0 4px 15px rgba(4,120,87,0.06)' }}>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#064e3b', margin: '0.2rem 0' }}>
+                    {CROP_ICONS[result.crop_classification.predicted_crop] || '🌱'} Plant: <b>{result.crop_classification.predicted_crop}</b>
+                  </h3>
+                  <span style={{ fontSize: '0.88rem', color: '#047857' }}>
+                    Model confidence for this plant: <b>{result.crop_classification.confidence}%</b>
+                  </span>
                 </div>
-              )}
+              ) : (
+                <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', padding: '1.1rem 1.4rem', borderRadius: '18px', marginBottom: '1.5rem', color: '#78350f' }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: '0.2rem 0' }}>🌱 Plant not recognised</h3>
+                  <span style={{ fontSize: '0.9rem' }}>
+                    The model is not sure which plant this is, or it is not one of the supported crops. Choose the crop above and scan again.
+                  </span>
+                </div>
+              ))}
 
               {/* Overall Health Score Card */}
               <div className="health-score-card">

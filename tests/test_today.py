@@ -53,3 +53,42 @@ def test_admin_outbreak_export(phone):
     assert lines[0] == "Village / place,Condition,Type,Confirmed scans,Last seen"
     assert lines[1].startswith("Erode,Tomato Early Blight,disease,1,")
     assert phone.get("/api/v1/admin/outbreaks.csv", headers=farmer).status_code == 403
+
+
+def test_ask_an_expert_round_trip(phone):
+    _install_both()
+    me, _ = _register(phone, username="asker_farmer")
+    other, _ = _register(phone, username="other_farmer")
+    scan_id = _analyze(phone, me).json()["scan"]["id"]
+    assert phone.post(f"/api/v1/scans/{scan_id}/ask", headers=other, json={"question": "Is this blight?"}).status_code == 404
+    assert phone.post(f"/api/v1/scans/{scan_id}/ask", headers=me, json={"question": "  "}).status_code == 422
+    asked = phone.post(f"/api/v1/scans/{scan_id}/ask", headers=me, json={"question": "Is this blight? Leaves are yellow."})
+    assert asked.status_code == 200 and asked.json()["scan"]["question"].startswith("Is this blight")
+    admin = _admin_headers(phone)
+    waiting = phone.get("/api/v1/scans?asked=true&review_status=pending", headers=admin).json()["scans"]
+    assert [s["id"] for s in waiting] == [scan_id]
+    assert phone.get("/api/v1/today", headers=me).json()["answers"] == []           # not answered yet
+    phone.post(f"/api/v1/scans/{scan_id}/review", headers=admin, json={"decision": "approved", "comment": "Yes, early blight."})
+    answers = phone.get("/api/v1/today", headers=me).json()["answers"]
+    assert answers == [{"scan_id": scan_id, "question": "Is this blight? Leaves are yellow.", "answer": "Yes, early blight.",
+                        "decision": "approved"}]
+    assert phone.get("/api/v1/today", headers=other).json()["answers"] == []
+
+
+def test_crop_calendar_saves_dated_reminders(phone):
+    me, _ = _register(phone, username="calendar_farmer")
+    crops = phone.get("/api/v1/calendar", headers=me).json()["crops"]
+    assert "Rice (Paddy)" in crops and "Tomato" in crops
+    preview = phone.get("/api/v1/calendar?crop=Rice (Paddy)&sown_on=2026-06-01", headers=me).json()
+    assert preview["harvest_on"] == "2026-09-29"
+    assert {"day": 21, "date": "2026-06-22", "kind": "fertilizer", "task": "First nitrogen top dressing (tillering)"} in preview["tasks"]
+    assert phone.get("/api/v1/diary", headers=me).json()["entries"] == []               # a preview saves nothing
+    saved = phone.post("/api/v1/calendar", headers=me,
+                       json={"plot": "East field", "crop": "Rice (Paddy)", "sown_on": "2026-06-01", "language": "ta"})
+    assert saved.status_code == 201
+    entries = phone.get("/api/v1/diary", headers=me).json()["entries"]
+    assert len(entries) == len(preview["tasks"])
+    assert all(e["remind_on"] == e["done_on"] and e["plot"] == "East field" for e in entries)
+    assert any("தூர் கட்டும்" in e["note"] for e in entries)                            # Tamil task text
+    assert phone.post("/api/v1/calendar", headers=me, json={"plot": "x", "crop": "Wheat", "sown_on": "2026-06-01"}).status_code == 422
+    assert phone.post("/api/v1/calendar", headers=me, json={"plot": "x", "crop": "Tomato", "sown_on": "2026-02-30"}).status_code == 422

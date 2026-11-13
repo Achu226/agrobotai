@@ -38,6 +38,17 @@ class RegisterIn(LoginIn):
     location: str = Field("", max_length=80)
 
 
+class CalendarIn(BaseModel):
+    plot: str = Field(..., min_length=1, max_length=60)
+    crop: str = Field(..., max_length=40)
+    sown_on: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}$")
+    language: str = Field("en", max_length=8)
+
+
+class AskIn(BaseModel):
+    question: str = Field(..., min_length=3, max_length=500)
+
+
 class ReviewIn(BaseModel):
     decision: str = Field(..., pattern="^(approved|rejected)$")
     comment: str = Field("", max_length=1000)
@@ -230,9 +241,12 @@ async def analyze(
     location: str = Form("", max_length=80),
     language: str = Form("ta", max_length=8),
     plot: str = Form("", max_length=60),
+    file2: UploadFile | None = File(None),
+    file3: UploadFile | None = File(None),
     user: dict = Depends(auth.current_user),
 ):
-    """Runs every available model on one photo and saves a scan only after inference succeeded."""
+    """Runs every available model on one photo (optionally 2 more leaves of the same plant, averaged for the disease
+    decision) and saves a scan only after inference succeeded."""
     request_id = client_request_id.strip() or None
     if request_id:
         existing = store.find_scan_by_request(user["id"], request_id)
@@ -243,9 +257,10 @@ async def analyze(
         crop = None
     try:
         image = await _image_from_upload(file)
+        extras = [await _image_from_upload(f) for f in (file2, file3) if f is not None and f.filename]
         async with _inference_lock:
             result = await asyncio.to_thread(inference_service.analyze, image, crop, include_advice, location or None,
-                                             languages.normalize(language), _live_sensors())
+                                             languages.normalize(language), _live_sensors(), extras)
     except inference_service.InferenceError as exc:
         if exc.status >= 500:
             # Record genuine failures for diagnostics; they never count as diagnoses
@@ -281,11 +296,11 @@ def _visible_scan(scan_id: int, user: dict) -> dict:
 
 @router.get("/api/v1/scans")
 def list_scans(review_status: str | None = Query(None, pattern="^(pending|approved|rejected)$"),
-               include_failed: bool = False, limit: int = Query(50, ge=1, le=500),
+               include_failed: bool = False, limit: int = Query(50, ge=1, le=500), asked: bool = False,
                user: dict = Depends(auth.current_user)):
     owner = None if user["role"] == "admin" else user["id"]
     return {"scans": store.list_scans(user_id=owner, review_status=review_status,
-                                      include_failed=include_failed and user["role"] == "admin", limit=limit)}
+                                      include_failed=include_failed and user["role"] == "admin", limit=limit, asked=asked)}
 
 
 @router.get("/api/v1/scans/{scan_id}")
@@ -504,6 +519,17 @@ async def voice_speak(body: SpeakIn, user: dict = Depends(auth.current_user)):
     return Response(audio, media_type=mime, headers={"X-Voice-Engine": engine, "Cache-Control": "no-store"})
 
 
+@router.post("/api/v1/scans/{scan_id}/ask")
+def ask_expert(scan_id: int, body: AskIn, user: dict = Depends(auth.current_user)):
+    """Farmer asks an expert (the admin / agriculture officer) about their own scan; the answer comes back as the review comment."""
+    if not body.question.strip():
+        raise HTTPException(status_code=422, detail="Write your question.")
+    scan = store.ask_expert(scan_id, user["id"], body.question)
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found.")
+    return {"scan": scan}
+
+
 @router.post("/api/v1/scans/{scan_id}/review")
 def review(scan_id: int, body: ReviewIn, admin: dict = Depends(auth.require_admin)):
     updated = store.review_scan(scan_id, admin["id"], body.decision, body.comment)
@@ -687,6 +713,39 @@ def diary_add(body: DiaryIn, user: dict = Depends(auth.current_user)):
     return {"entry": store.add_diary_entry(user["id"], entry)}
 
 
+def _calendar(crop: str, sown_on: str, language: str) -> dict:
+    from src import crop_calendar
+
+    if crop not in crop_calendar.CALENDAR:
+        raise HTTPException(status_code=422, detail=f"No crop calendar for {crop}. Available: {', '.join(crop_calendar.CALENDAR)}.")
+    try:
+        day = datetime.strptime(sown_on, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"Not a real date: {sown_on}") from None
+    return crop_calendar.plan(crop, day, "ta" if languages.normalize(language) == "ta" else "en")
+
+
+@router.get("/api/v1/calendar")
+def calendar_preview(crop: str | None = Query(None, max_length=40), sown_on: str | None = Query(None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
+                     language: str = Query("en", max_length=8), user: dict = Depends(auth.current_user)):
+    """Without a crop: the crops that have a calendar. With crop + sown_on: the dated tasks (nothing is saved)."""
+    from src import crop_calendar
+
+    if not crop or not sown_on:
+        return {"crops": list(crop_calendar.CALENDAR)}
+    return _calendar(crop, sown_on, language)
+
+
+@router.post("/api/v1/calendar", status_code=201)
+def calendar_save(body: CalendarIn, user: dict = Depends(auth.current_user)):
+    """Saves every task as a diary entry with a reminder on its date, so phone reminders and the Today card pick them up."""
+    cal = _calendar(body.crop, body.sown_on, body.language)
+    plot = body.plot.strip()
+    entries = [store.add_diary_entry(user["id"], {"plot": plot, "kind": t["kind"], "note": f"{body.crop}: {t['task']}",
+                                                  "done_on": t["date"], "remind_on": t["date"]}) for t in cal["tasks"]]
+    return cal | {"entries": entries}
+
+
 @router.delete("/api/v1/diary/{entry_id}")
 def diary_delete(entry_id: int, user: dict = Depends(auth.current_user)):
     if not store.delete_diary_entry(user["id"], entry_id):
@@ -781,6 +840,10 @@ def today(user: dict = Depends(auth.current_user)):
         "reminders": [e for e in diary if e["remind_on"] == day.isoformat()],
         "nearby": outbreaks_nearby(days=14, user=user).get("alerts", []),
         "alerts": alerts(user=user)["alerts"],
+        # Expert answers to the farmer's questions from the last 7 days
+        "answers": [{"scan_id": a["id"], "question": a["question"], "answer": a["review_comment"], "decision": a["review_status"]}
+                    for a in store.list_scans(user_id=user["id"], asked=True, limit=20)
+                    if a["review_status"] != "pending" and (a["reviewed_at"] or "")[:10] >= week_start],
         "week": {
             "scans": sum((s["received_at"] or "")[:10] >= week_start for s in store.list_scans(user_id=user["id"], limit=500)),
             "spent": sum(e["cost"] for e in week if e["kind"] != "sale"),

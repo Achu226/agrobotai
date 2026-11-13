@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Bug, Cpu, LogOut, RefreshCw, ShieldCheck, Users, Wifi, WifiOff } from 'lucide-react';
+import { Bug, Cpu, LogOut, MessageCircleQuestionMark, RefreshCw, ShieldCheck, Users, Wifi, WifiOff } from 'lucide-react';
 
 // Administrator view of the laptop website (open http://localhost:8000/#admin).
 // Signs in with an admin account (created with manage_users.py) and shows who is logged in.
@@ -129,6 +129,50 @@ function PiSection({ pi, th, td }) {
   );
 }
 
+// The scan photo needs the login token, so it is fetched and shown from a temporary link
+function ScanPhoto({ apiBase, token, id }) {
+  const [url, setUrl] = useState(null);
+  useEffect(() => {
+    let u = null;
+    fetch(`${apiBase}/api/v1/scans/${id}/image`, { headers: { Authorization: `Bearer ${token}` } })
+      .then((r) => (r.ok ? r.blob() : null)).then((b) => { if (b) { u = URL.createObjectURL(b); setUrl(u); } }).catch(() => {});
+    return () => { if (u) URL.revokeObjectURL(u); };
+  }, [apiBase, token, id]);
+  return url ? <img src={url} alt={`Scan ${id}`} style={{ width: 120, height: 120, objectFit: 'cover', borderRadius: 10 }} /> : null;
+}
+
+// Farmers' "Ask an expert" questions; the answer is saved as the scan's review comment and shows in their app
+function QuestionsSection({ questions, apiBase, token, onAnswer }) {
+  const [answers, setAnswers] = useState({});
+  const [busy, setBusy] = useState(null);
+  const send = async (id, decision) => {
+    setBusy(id);
+    try { await onAnswer(id, decision, (answers[id] || '').trim()); } catch (e) { window.alert(e.message); } finally { setBusy(null); }
+  };
+  return (
+    <div className="card-section">
+      <div className="section-title"><MessageCircleQuestionMark size={18} /> Questions from farmers ({questions.length} waiting)</div>
+      {questions.length === 0 && <p style={{ color: '#64748b' }}>No questions waiting.</p>}
+      {questions.map((q) => (
+        <div key={q.id} style={{ display: 'flex', gap: 14, flexWrap: 'wrap', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+          {q.has_image && <ScanPhoto apiBase={apiBase} token={token} id={q.id} />}
+          <div style={{ flex: '1 1 280px' }}>
+            <div style={{ fontSize: 13, color: '#64748b' }}>Scan #{q.id} · @{q.username} · {fmt(q.asked_at)}</div>
+            <div style={{ margin: '4px 0' }}>Model: <b>{q.disease_label || q.pest_label || q.summary_state}</b>{q.crop_reported ? ` · ${q.crop_reported}` : ''}</div>
+            <div style={{ background: '#f8fafc', padding: 8, borderRadius: 8 }}>“{q.question}”</div>
+            <textarea value={answers[q.id] || ''} onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })} maxLength={1000}
+              placeholder="Your answer to the farmer (what it is, what to do)" rows={3} style={{ width: '100%', marginTop: 8, padding: 8 }} />
+            <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
+              <button className="btn-primary" disabled={busy === q.id || !(answers[q.id] || '').trim()} onClick={() => send(q.id, 'approved')}>Answer · model was right</button>
+              <button className="btn-secondary" disabled={busy === q.id || !(answers[q.id] || '').trim()} onClick={() => send(q.id, 'rejected')}>Answer · model was wrong</button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AdminPanel({ apiBase }) {
   const [token, setToken] = useState(() => {
     try { return sessionStorage.getItem(TOKEN_KEY); } catch { return null; }
@@ -173,13 +217,14 @@ export default function AdminPanel({ apiBase }) {
     if (!token) return;
     setLoading(true);
     try {
-      const [sessions, users, stats, pi, outbreaks] = await Promise.all([
+      const [sessions, users, stats, pi, outbreaks, questions] = await Promise.all([
         api('/api/v1/admin/sessions'), api('/api/v1/admin/users'), api('/api/v1/admin/stats'),
         // The Pi is optional: its failure must not hide the laptop's own data
         api('/api/v1/admin/pi').catch((e) => ({ configured: true, ok: false, error: e.message })),
         api('/api/v1/admin/outbreaks').catch(() => null),
+        api('/api/v1/scans?asked=true&review_status=pending&limit=100').catch(() => ({ scans: [] })),
       ]);
-      setData({ ...sessions, users: users.users, stats, pi, outbreaks, loadedAt: new Date() });
+      setData({ ...sessions, users: users.users, stats, pi, outbreaks, questions: questions.scans, loadedAt: new Date() });
       setError(null);
     } catch (e) {
       if (e.status === 401 || e.status === 403) {
@@ -275,6 +320,9 @@ export default function AdminPanel({ apiBase }) {
         {data && <span style={{ color: '#64748b', fontSize: 13 }}>Updated {data.loadedAt.toLocaleTimeString()} · refreshes every 15 s · "online" = active in the last 5 minutes</span>}
       </div>
       {error && <p style={{ color: '#b91c1c' }}>{error}</p>}
+
+      <QuestionsSection questions={data?.questions || []} apiBase={apiBase} token={token}
+        onAnswer={async (id, decision, comment) => { await api(`/api/v1/scans/${id}/review`, { method: 'POST', body: JSON.stringify({ decision, comment }) }); await load(); }} />
 
       <OutbreakSection sources={[['Laptop', data?.outbreaks], ['Raspberry Pi', data?.pi?.ok ? data.pi.outbreaks : null]]} th={th} td={td} onExport={exportOutbreaks} />
 

@@ -51,6 +51,7 @@ working when the mobile signal does not. It is **honest when unsure** — below 
 - **48 diseases, 16 crops** — tomato, potato, pepper, rice, banana, maize, grape, apple, orange and more
 - **9 insect pests** + "no pest" (pest model trained separately)
 - **Calibrated confidence** and a "not a supported crop" answer — never a forced guess
+- **Plant name only when sure** (≥ 90 % for that crop) · **3-photo scan** of one plant for a steadier answer
 - **AI focus heatmap** (Grad-CAM) and **affected-area %**
 - Advice in **Tamil, English and 10 more Indian languages**, voice questions, offline AI chat
 
@@ -62,6 +63,7 @@ working when the mobile signal does not. It is **honest when unsure** — below 
 - **Spray planner** from the real hourly forecast (rain, wind, heat)
 - **Spray dose calculator** with the **harvest-safe date**
 - **Fertilizer bags** from the Soil Health Card N-P-K
+- **Crop calendar** — sowing date → dated tasks as phone reminders (10 crops)
 - **Mandi prices** (Agmarknet) and **Kisan Call Centre** on every result
 
 </td>
@@ -80,9 +82,11 @@ working when the mobile signal does not. It is **honest when unsure** — below 
 
 ### 📡 Connect
 - **Disease alerts near you** — what other farmers confirmed in your village (counts only)
+- **Ask an expert** — send an unsure scan to the agriculture officer; the answer comes back in the app
 - **IoT soil and weather sensors** on the Raspberry Pi, with phone alerts
 - **Offline queue** — scans taken without signal upload later; **offline guide**
 - **Home-garden mode** for pots and terraces · **admin outbreak dashboard**
+- **Pi farm Wi-Fi** — no router in the field? The Pi makes its own Wi-Fi · daily **USB backup**
 
 </td>
 </tr>

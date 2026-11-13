@@ -13,7 +13,10 @@ Field photos are over-sampled to ~40% of every epoch.
 Writes models/disease_model_ext.pt (the deployed model is not touched). Compare it with
 scripts/compare_disease_models.py before swapping it in.
 
-    python scripts/train_extended_model.py [epochs]
+    python scripts/train_extended_model.py [epochs] [--garden-as-other]
+
+--garden-as-other: no garden classes; instead a capped sample of the garden photos joins Other_plant, so plants the
+model does not support answer "not a supported plant" instead of a wrong crop name. Writes disease_model_ext_other.pt.
 """
 from __future__ import annotations
 
@@ -34,7 +37,13 @@ from scripts.train_field_model import EVAL_TF, TRAIN_TF, Images, _score, evaluat
 
 BASE = ROOT / "models" / "disease_model.pt"
 OLD_CLASSES = list(torch.load(BASE, map_location="cpu")["classes"])
-EXTRA_ROOTS = [ROOT / "data/disease_ext", ROOT / "data/disease_garden"]
+GARDEN = ROOT / "data/disease_garden"
+GARDEN_AS_OTHER = "--garden-as-other" in sys.argv
+if GARDEN_AS_OTHER:
+    sys.argv.remove("--garden-as-other")
+# Garden photos per split added to Other_plant (it has ~600 train photos; all 9k garden photos would swamp it)
+GARDEN_CAP = {"train": 1500, "val": 300}
+EXTRA_ROOTS = [ROOT / "data/disease_ext"] + ([] if GARDEN_AS_OTHER else [GARDEN])
 NEW = [c for r in EXTRA_ROOTS if (r / "sources.json").exists()
        for c in json.loads((r / "sources.json").read_text(encoding="utf-8"))["classes"] if c not in OLD_CLASSES]
 NEW = list(dict.fromkeys(NEW))
@@ -43,7 +52,7 @@ CLASSES = OLD_CLASSES + NEW
 # counting them as field halved how often PlantDoc photos were drawn (field test fell 69.9 -> 64.4%).
 FIELD_SOURCES = ("rice_", "banana_", "other_")
 FIELD_SHARE = 0.4
-OUT = ROOT / "models" / "disease_model_ext.pt"
+OUT = ROOT / "models" / ("disease_model_ext_other.pt" if GARDEN_AS_OTHER else "disease_model_ext.pt")
 
 
 def build_splits():
@@ -54,6 +63,9 @@ def build_splits():
             lab += [(f, i, False) for f in files(ROOT / "data/disease" / split, c)]
             for f in (f for r in EXTRA_ROOTS for f in files(r / split, c)):
                 (field if f.name.startswith(FIELD_SOURCES) else lab).append((f, i, f.name.startswith(FIELD_SOURCES)))
+            if GARDEN_AS_OTHER and c == "Other_plant":
+                garden = sorted(f for d in sorted((GARDEN / split).iterdir()) for f in files(GARDEN / split, d.name))
+                lab += [(f, i, False) for f in random.Random(split).sample(garden, min(GARDEN_CAP[split], len(garden)))]
         fs = files(ROOT / "data/plantdoc_v2/train", c)
         rng.shuffle(fs)
         n_val = max(1, round(0.15 * len(fs))) if len(fs) >= 5 else 0

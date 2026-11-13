@@ -277,6 +277,20 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
       ClipRRect(
           borderRadius: BorderRadius.circular(16),
           child: Image.memory(_c.capturedImage!, height: 320, fit: BoxFit.cover, gaplessPlayback: true)),
+      if (_c.extraImages.isNotEmpty) ...[
+        const SizedBox(height: 6),
+        Row(children: [
+          for (final img in _c.extraImages)
+            Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.memory(img, width: 64, height: 64, fit: BoxFit.cover))),
+        ]),
+      ],
+      if (!analyzing && _c.phase == ScanPhase.imageCaptured && 1 + _c.extraImages.length < ScanController.maxPhotos)
+        TextButton.icon(
+            onPressed: _c.addLeaf,
+            icon: const Icon(Icons.add_a_photo_outlined),
+            label: Text(context.tr('Add another leaf of the same plant ({n}/3) — more accurate', {'n': 1 + _c.extraImages.length}))),
       const SizedBox(height: 4),
       Text(
           _c.importedFromGallery

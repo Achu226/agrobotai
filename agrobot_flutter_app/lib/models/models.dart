@@ -165,6 +165,8 @@ class ScanRecord {
   String? get reviewer => raw['reviewer_username'] as String?;
   String? get reviewedAt => raw['reviewed_at'] as String?;
   String? get reviewComment => raw['review_comment'] as String?;
+  /// The farmer's "Ask an expert" question; the answer arrives as [reviewComment].
+  String? get question => raw['question'] as String?;
   String? get error => raw['error'] as String?;
   bool get hasImage => raw['has_image'] == true;
   Map<String, dynamic> get modelVersions => _map(raw['model_versions']);

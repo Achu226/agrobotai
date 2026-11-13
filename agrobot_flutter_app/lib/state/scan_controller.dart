@@ -55,6 +55,11 @@ class ScanController extends ChangeNotifier {
   int lensIndex = 0;
   FlashSetting flash = FlashSetting.off;
   Uint8List? capturedImage;
+
+  /// Up to 2 more leaves of the same plant; the server averages them with [capturedImage] for the disease decision.
+  List<Uint8List> extraImages = const [];
+  bool _addingLeaf = false;
+  static const maxPhotos = 3;
   DateTime? capturedAt;
   bool importedFromGallery = false;
   String? clientRequestId;
@@ -183,7 +188,22 @@ class ScanController extends ChangeNotifier {
     _set(ScanPhase.imageCaptured);
   }
 
+  /// Opens the camera for one more leaf of the same plant (kept with the first photo).
+  Future<void> addLeaf() async {
+    if (busy || capturedImage == null || 1 + extraImages.length >= maxPhotos) return;
+    _addingLeaf = true;
+    await startCamera();
+  }
+
   void _acceptImage(Uint8List bytes, {required bool fromGallery}) {
+    if (_addingLeaf && capturedImage != null) {
+      _addingLeaf = false;
+      extraImages = [...extraImages, bytes];
+      clientRequestId = _newRequestId(); // different photos = a different request
+      result = null;
+      return;
+    }
+    extraImages = const [];
     capturedImage = bytes;
     capturedAt = fromGallery ? null : DateTime.now();
     importedFromGallery = fromGallery;
@@ -194,6 +214,8 @@ class ScanController extends ChangeNotifier {
   Future<void> retake() async {
     if (busy) return;
     capturedImage = null;
+    extraImages = const [];
+    _addingLeaf = false;
     capturedAt = null;
     clientRequestId = null;
     result = null;
@@ -207,6 +229,7 @@ class ScanController extends ChangeNotifier {
     try {
       final response = await apiProvider().analyze(
         bytes,
+        extraImages: extraImages,
         clientRequestId: clientRequestId!,
         crop: crop,
         plot: plot,
@@ -221,7 +244,8 @@ class ScanController extends ChangeNotifier {
       if (e.kind == ApiErrorKind.unauthorized) await onUnauthorized?.call(e);
       if (queue != null && (e.kind == ApiErrorKind.serverUnreachable || e.kind == ApiErrorKind.timeout)) {
         try {
-          await queue!.save(bytes, clientRequestId: clientRequestId!, crop: crop, plot: plot, capturedAt: capturedAt);
+          await queue!.save(bytes,
+              extraImages: extraImages, clientRequestId: clientRequestId!, crop: crop, plot: plot, capturedAt: capturedAt);
           await onSavedOffline?.call();
           return _set(ScanPhase.savedOffline,
               msg: 'The laptop could not be reached. This photo is saved on the phone and will be analysed automatically '

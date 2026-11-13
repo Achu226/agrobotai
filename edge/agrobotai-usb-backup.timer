@@ -1,0 +1,11 @@
+# Install (with agrobotai-usb-backup.service, same __DIR__ replacement as the other units):
+#   sudo systemctl daemon-reload && sudo systemctl enable --now agrobotai-usb-backup.timer
+[Unit]
+Description=AGROBOTAI daily USB backup at 21:00
+
+[Timer]
+OnCalendar=*-*-* 21:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

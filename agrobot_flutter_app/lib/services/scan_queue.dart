@@ -18,10 +18,13 @@ class ScanQueue {
   Future<Directory> _root() async => Directory('${(await _baseDir()).path}${Platform.pathSeparator}scan_queue');
 
   Future<void> save(Uint8List photo,
-      {required String clientRequestId, String? crop, String? plot, DateTime? capturedAt}) async {
+      {List<Uint8List> extraImages = const [], required String clientRequestId, String? crop, String? plot, DateTime? capturedAt}) async {
     final dir = Directory('${(await _root()).path}${Platform.pathSeparator}$clientRequestId');
     await dir.create(recursive: true);
     await File('${dir.path}${Platform.pathSeparator}photo.jpg').writeAsBytes(photo, flush: true);
+    for (var i = 0; i < extraImages.length; i++) {
+      await File('${dir.path}${Platform.pathSeparator}photo${i + 2}.jpg').writeAsBytes(extraImages[i], flush: true);
+    }
     // meta.json last: an item counts as queued only once it is complete
     await File('${dir.path}${Platform.pathSeparator}meta.json').writeAsString(jsonEncode({
       'client_request_id': clientRequestId,
@@ -61,8 +64,14 @@ class ScanQueue {
       for (final dir in await _items()) {
         final meta = jsonDecode(await File('${dir.path}${Platform.pathSeparator}meta.json').readAsString()) as Map<String, dynamic>;
         final photo = await File('${dir.path}${Platform.pathSeparator}photo.jpg').readAsBytes();
+        final extras = [
+          for (final n in [2, 3])
+            if (await File('${dir.path}${Platform.pathSeparator}photo$n.jpg').exists())
+              await File('${dir.path}${Platform.pathSeparator}photo$n.jpg').readAsBytes()
+        ];
         try {
           await api.analyze(photo,
+              extraImages: extras,
               clientRequestId: meta['client_request_id'] as String,
               crop: meta['crop'] as String?,
               plot: meta['plot'] as String?,

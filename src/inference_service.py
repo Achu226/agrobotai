@@ -37,6 +37,7 @@ from src.config import (
     SCAN_IMAGES_DIR,
     SUPPORTED_DISEASE_CROPS,
 )
+from src.crop_classifier import crop_from_probs
 from src.disease_detector import detect_disease
 from src.image_quality import check_image_quality
 from src.image_utils import prepare_model_input
@@ -297,9 +298,23 @@ def _health_index(overall: dict) -> dict | None:
 ADVISABLE_STATES = ("disease_detected", "pest_detected", "disease_and_pest_detected")
 
 
+def _extra_view(image_rgb: np.ndarray, n: int) -> np.ndarray:
+    """Calibrated disease probabilities of extra photo n, after the same quality and leaf checks as the first."""
+    from src.image_utils import validate_plant_image
+
+    quality = check_image_quality(image_rgb)
+    if not quality["ok"]:
+        raise InferenceError(422, "poor_image_quality", f"Photo {n}: " + " ".join(i["message"] for i in quality["issues"]))
+    ok, message, _ = validate_plant_image(image_rgb)
+    if not ok:
+        raise InferenceError(422, "no_leaf_detected", f"Photo {n}: {message}")
+    return calibrated_probs("disease", image_rgb)
+
+
 def analyze(image_rgb: np.ndarray, crop: str | None = None, include_advice: bool = True, location: str | None = None,
-            language: str = "ta", sensors: list[dict] | None = None) -> dict:
-    """Full analysis. Raises InferenceError when nothing could be inferred."""
+            language: str = "ta", sensors: list[dict] | None = None, extra_images: list[np.ndarray] | None = None) -> dict:
+    """Full analysis. Raises InferenceError when nothing could be inferred.
+    extra_images: more leaves of the same plant; the disease decision then uses their averaged calibrated probabilities."""
     disease_w, pest_w = model_registry.wrapper("disease"), model_registry.wrapper("pest")
     if disease_w is None and pest_w is None:
         raise InferenceError(503, "models_unavailable", "Neither the disease nor the pest model is loaded.",
@@ -317,7 +332,18 @@ def analyze(image_rgb: np.ndarray, crop: str | None = None, include_advice: bool
 
     d_cal = calibrated_probs("disease", image_rgb) if res["disease"].get("ok") else None
     p_cal = calibrated_probs("pest", image_rgb) if res["pest"].get("ok") else None
-    disease = assess_disease(res["disease"], d_cal, crop if crop in CROPS else None, pipeline_ms)
+    det, views = res["disease"], [d_cal]
+    if extra_images and d_cal is not None:
+        views += [_extra_view(img, n) for n, img in enumerate(extra_images, start=2)]
+        d_cal = np.mean(views, axis=0)
+        det = det | {"label": DISEASE_CLASSES[int(np.argmax(d_cal))], "confidence_raw": float(d_cal.max())}
+    disease = assess_disease(det, d_cal, crop if crop in CROPS else None, pipeline_ms)
+    if len(views) > 1:
+        disease["photos"] = len(views)
+        named = {c for c in (crop_from_probs(v)[0] for v in views) if c}
+        if len(named) > 1 and disease["state"] in ("disease_detected", "no_disease_detected"):
+            disease.update(state="uncertain", message=UNCERTAIN_MESSAGE, uncertainty_reasons=disease.get("uncertainty_reasons", []) + [
+                f"the photos seem to show different plants ({', '.join(sorted(named))}); use leaves of one plant"])
     pest = assess_pest(res["pest"], p_cal, pipeline_ms)
     insect_photo = pest["state"] == "pest_detected" and (res["disease"].get("single_view_confidence") or 0) < INSECT_PHOTO_DISEASE_LIMIT
     if insect_photo and disease["state"] in ("disease_detected", "no_disease_detected", "uncertain"):
@@ -347,10 +373,13 @@ def analyze(image_rgb: np.ndarray, crop: str | None = None, include_advice: bool
         except Exception as exc:  # noqa: BLE001
             gradcam = {"target": target, "error": str(exc)}
 
+    # Plant name only when the model is sure of the crop (summed over its classes); unsure -> None, never a guess
+    crop_name, crop_conf = crop_from_probs(d_cal) if d_cal is not None else (None, None)
+    crop_conf = round(crop_conf * 100, 2) if crop_conf is not None else None
     dosage = res.get("dosage_recommendation") or {}
     result = {
         "summary": {"state": summary_state, "message": summary_message},
-        "crop": {"selected": crop, "reported": disease.get("predicted_crop") if disease.get("label") else None},
+        "crop": {"selected": crop, "reported": crop_name, "confidence": crop_conf},
         "disease": disease,
         "pest": pest,
         "severity": severity_out,

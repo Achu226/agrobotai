@@ -51,6 +51,7 @@ class _TodayCardState extends State<TodayCard> {
         final nearby = (d['nearby'] as List? ?? const []).cast<Map<String, dynamic>>();
         final alerts = (d['alerts'] as List? ?? const []).cast<Map<String, dynamic>>();
         final week = (d['week'] as Map).cast<String, dynamic>();
+        final answers = (d['answers'] as List? ?? const []).cast<Map<String, dynamic>>();
         final sprayLine = spray['ok'] != true
             ? null
             : spray['ok_now'] == true
@@ -64,7 +65,9 @@ class _TodayCardState extends State<TodayCard> {
           if (reminders.isNotEmpty)
             reminders.length == 1 ? context.tr('1 reminder today') : context.tr('{n} reminders today', {'n': reminders.length}),
           if (warnings > 0) warnings == 1 ? context.tr('1 alert') : context.tr('{n} alerts', {'n': warnings}),
-          if (sprayLine == null && reminders.isEmpty && warnings == 0) context.tr('Nothing needs attention'),
+          if (answers.isNotEmpty)
+            answers.length == 1 ? context.tr('1 expert answer') : context.tr('{n} expert answers', {'n': answers.length}),
+          if (sprayLine == null && reminders.isEmpty && warnings == 0 && answers.isEmpty) context.tr('Nothing needs attention'),
         ].join(' • ');
         Widget line(IconData icon, String text, {Color? color}) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 3),
@@ -93,6 +96,8 @@ class _TodayCardState extends State<TodayCard> {
                 line(Icons.campaign_outlined, context.tr('{name}: {n} confirmed scans near you', {'name': a['display_name'], 'n': a['count']}),
                     color: Colors.orange.shade900),
               for (final a in alerts) line(Icons.warning_amber, alertText(context, a), color: Colors.orange.shade900),
+              for (final a in answers)
+                line(Icons.support_agent, context.tr('Expert answer (scan #{id}): {answer}', {'id': a['scan_id'], 'answer': a['answer'] ?? ''})),
               line(
                   Icons.date_range,
                   context.tr('Last 7 days: {scans} scans • spent ₹{spent} • earned ₹{earned}',

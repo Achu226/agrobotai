@@ -190,6 +190,7 @@ class _ScanResultViewState extends State<ScanResultView> {
         OutlinedButton.icon(
             onPressed: _checkAgain, icon: const Icon(Icons.event_repeat), label: Text(context.tr('Remind me to scan again in 7 days'))),
       if (color != Colors.green) const KisanCallCentre(),
+      if (context.read<SessionState>().user?.role != 'admin') AskExpertCard(scan: scan),
       SectionCard(title: 'Record', icon: Icons.receipt_long, trailing: ReviewChip(scan.reviewStatus), children: [
         InfoRow('Scan ID', '#${scan.id}'),
         InfoRow('Captured', scan.capturedAt == null ? 'Not available (imported photo)' : shortTime(scan.capturedAt)),
@@ -212,6 +213,77 @@ class _ScanResultViewState extends State<ScanResultView> {
 
 
 /// India's free farmer helpline (Ministry of Agriculture): experts answer in the caller's language.
+/// "Ask an expert": the farmer's question about this scan goes to the officer/admin website; the answer comes back
+/// as the review comment (shown in the Record card and on the Today card).
+class AskExpertCard extends StatefulWidget {
+  const AskExpertCard({super.key, required this.scan});
+
+  final ScanRecord scan;
+
+  @override
+  State<AskExpertCard> createState() => _AskExpertCardState();
+}
+
+class _AskExpertCardState extends State<AskExpertCard> {
+  late String? _question = widget.scan.question;
+  late final bool _answered = _question != null && widget.scan.reviewStatus != 'pending';
+  bool _sending = false;
+
+  Future<void> _ask() async {
+    final ctrl = TextEditingController();
+    final text = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(ctx.tr('Ask an expert')),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          maxLength: 500,
+          maxLines: 4,
+          decoration: InputDecoration(hintText: ctx.tr('What do you see? Since when? What did you spray?')),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(ctx.tr('Cancel'))),
+          FilledButton(onPressed: () => Navigator.pop(ctx, ctrl.text.trim()), child: Text(ctx.tr('Send'))),
+        ],
+      ),
+    );
+    ctrl.dispose();
+    if (text == null || text.length < 3 || !mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _sending = true);
+    try {
+      final saved = await context.read<SessionState>().api.askExpert(widget.scan.id, text);
+      if (!mounted) return;
+      setState(() => _question = saved.question);
+      messenger.showSnackBar(SnackBar(content: Text(context.tr('Question sent. The answer will appear on this scan.'))));
+    } on ApiException catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e.message)));
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: ListTile(
+          leading: const Icon(Icons.support_agent, color: kGreen),
+          title: Text(context.tr(_question == null ? 'Ask an expert' : 'Your question to the expert'),
+              style: const TextStyle(fontWeight: FontWeight.bold)),
+          subtitle: Text(_question == null
+              ? context.tr('An agriculture officer looks at your photo and answers here.')
+              : '“$_question”\n${context.tr(_answered ? 'Answered — see Review comment below' : 'Waiting for the answer')}'),
+          isThreeLine: _question != null,
+          trailing: _sending
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+              : _question == null
+                  ? const Icon(Icons.chevron_right)
+                  : null,
+          onTap: _sending || _question != null ? null : _ask,
+        ),
+      );
+}
+
 class KisanCallCentre extends StatelessWidget {
   const KisanCallCentre({super.key});
 

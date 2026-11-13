@@ -1,0 +1,16 @@
+# Farm Wi-Fi fallback (see farm_wifi.sh). Install:
+#   sed "s#__DIR__#$HOME/agrobotai_edge#g" agrobotai-farm-wifi.service | sudo tee /etc/systemd/system/agrobotai-farm-wifi.service
+#   sudo systemctl daemon-reload && sudo systemctl enable agrobotai-farm-wifi
+[Unit]
+Description=AGROBOTAI farm Wi-Fi hotspot when the normal Wi-Fi is not available
+After=NetworkManager.service
+Wants=NetworkManager.service
+
+[Service]
+Type=oneshot
+ExecStart=__DIR__/farm_wifi.sh boot
+StandardOutput=append:__DIR__/logs/farm_wifi.log
+StandardError=append:__DIR__/logs/farm_wifi.log
+
+[Install]
+WantedBy=multi-user.target

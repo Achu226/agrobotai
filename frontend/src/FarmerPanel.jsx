@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { CloudSun, Download, Leaf, LogOut, Megaphone, Package, Sprout, Store, Trash2, Wallet } from 'lucide-react';
+import { CalendarDays, CloudSun, Download, Leaf, LogOut, Megaphone, Package, Sprout, Store, Trash2, Wallet } from 'lucide-react';
 
 // Farmer's own page on the website (open http://localhost:8000/#farm): the same tools as the phone app's
 // Weather tab and farm diary. Signs in with the farmer's app account; everything comes from /api/v1.
@@ -221,6 +221,44 @@ function FertilizerCalculator({ api }) {
   );
 }
 
+function CropCalendar({ api }) {
+  const [crops, setCrops] = useState([]);
+  const [f, setF] = useState({ crop: '', plot: '', sown_on: new Date().toISOString().slice(0, 10) });
+  const [plan, setPlan] = useState(null);
+  const [msg, setMsg] = useState(null);
+  useEffect(() => { api('/api/v1/calendar').then((b) => setCrops(b.crops), () => setCrops([])); }, [api]);
+  const set = (k) => (e) => { setF({ ...f, [k]: e.target.value }); setPlan(null); setMsg(null); };
+  const show = async (e) => {
+    e.preventDefault();
+    try { setPlan(await api(`/api/v1/calendar?${new URLSearchParams({ crop: f.crop, sown_on: f.sown_on })}`)); setMsg(null); } catch (err) { setMsg(err.message); }
+  };
+  const save = async () => {
+    try {
+      const r = await api('/api/v1/calendar', { method: 'POST', body: JSON.stringify(f) });
+      setMsg(`${r.entries.length} reminders saved to the farm diary (the phone app reminds you on each date).`);
+    } catch (err) { setMsg(err.message); }
+  };
+  return (
+    <div className="card-section">
+      <div className="section-title"><CalendarDays size={18} /> Crop calendar</div>
+      <form onSubmit={show} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 8, alignItems: 'end' }}>
+        <label>Crop<select required value={f.crop} onChange={set('crop')} style={input}><option value="">Choose…</option>{crops.map((c) => <option key={c}>{c}</option>)}</select></label>
+        <label>Sowing / transplanting date<input type="date" required value={f.sown_on} onChange={set('sown_on')} style={input} /></label>
+        <label>Plot / field name<input maxLength={60} value={f.plot} onChange={set('plot')} style={input} /></label>
+        <button className="btn-primary" type="submit">Show calendar</button>
+      </form>
+      {plan && (
+        <>
+          <p style={muted}>{plan.note} Harvest around <b>{plan.harvest_on}</b>.</p>
+          <ul>{plan.tasks.map((t, i) => <li key={i}><b>{t.date}</b> (day {t.day}) — {t.task}</li>)}</ul>
+          <button className="btn-secondary" disabled={!f.plot.trim()} onClick={save}>{f.plot.trim() ? 'Save as diary reminders' : 'Type a plot name to save'}</button>
+        </>
+      )}
+      {msg && <p style={{ marginTop: 8 }}>{msg}</p>}
+    </div>
+  );
+}
+
 function ProfitBook({ api, download }) {
   const [entries, setEntries] = useState(null);
   const [error, setError] = useState(null);
@@ -384,6 +422,7 @@ export default function FarmerPanel({ apiBase }) {
           <SprayAndWeather api={api} location={user?.location || ''} />
           <MarketPrices api={api} />
           <FertilizerCalculator api={api} />
+          <CropCalendar api={api} />
           <MyScans api={api} download={download} />
           <ProfitBook api={api} download={download} />
         </>
